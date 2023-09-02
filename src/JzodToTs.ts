@@ -1,8 +1,10 @@
 import ts from "typescript";
-import { ZodTypeAny } from "zod";
+import { ZodLazy } from "zod";
 import { createTypeAlias, printNode, withGetType, zodToTs } from "zod-to-ts";
 
-import { JzodElement, jzodElementSchemaToZodSchemaAndDescription } from "@miroir-framework/jzod";
+import { jzodElementSchemaToZodSchemaAndDescription } from "@miroir-framework/jzod";
+
+import { JzodElement } from "./JzodTsInterface";
 
 import { printTsTypeAliases } from "./tools";
 // ################################################################################################
@@ -28,7 +30,7 @@ export function jzodToTsTypeAliasesAndZodText(
     element,
     () => ({}),
     () => ({}),
-    (innerReference: ZodTypeAny, relativeReference: string | undefined) =>
+    (innerReference: ZodLazy<any>, relativeReference: string | undefined) =>
       withGetType(innerReference, (ts) => {
         return ts.factory.createTypeReferenceNode(
           ts.factory.createIdentifier(relativeReference ? relativeReference : "RELATIVEPATH_NOT_DEFINED")

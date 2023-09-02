@@ -1,11 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import {
-  JzodElement,
-  jzodBootstrapSetSchema
-} from "@miroir-framework/jzod";
+import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
 import { jzodToTsCode } from "../src/JzodToTs";
+import { JzodElement, jzodElementSchema } from "../src/JzodTsInterface";
 
 const refsPath = "./tests/resources"
 const tmpPath = "./tests/tmp";
@@ -19,6 +17,8 @@ const testJzodToTs = (
   exportPrefix: boolean,
   typeName: string
 ) => {
+  console.log("testJzodToTs:", typeName);
+  
   const testResultSchemaFilePath = path.join(tmpPath,testFileName);
   const expectedSchemaFilePath = path.join(refsPath,referenceFileName);
 
@@ -81,7 +81,7 @@ describe(
         {
           type: "schemaReference", 
           context: {
-            ...jzodBootstrapSetSchema,
+            ...jzodBootstrapElementSchema.context,
             a: {
               type: "array",
               definition: { type: "schemaReference", definition: {relativePath: "jzodArraySchema"} }

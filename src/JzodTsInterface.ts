@@ -1,4 +1,4 @@
-import { ZodObject, ZodType, ZodTypeAny, z } from "zod";
+import { ZodType, z } from "zod";
 
 const jzodRootSchema = z.object({
   optional: z.boolean().optional(),
@@ -310,6 +310,7 @@ export const jzodMapSchema: z.ZodType<JzodMap> = z.object({ // issue with JsonSc
 export interface JzodObject extends JzodRoot {
   optional?: boolean,
   nullable?: boolean,
+  extend?: JzodReference | JzodObject,
   extra?: {[k:string]:any},
   type: "object",
   // context?: {[attributeName:string]: JzodElement},
@@ -319,6 +320,7 @@ export interface JzodObject extends JzodRoot {
 export const jzodObjectSchema: z.ZodType<JzodObject> = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
+  extend: z.lazy(()=>z.union([jzodReferenceSchema,jzodObjectSchema])).optional(),
   extra: z.record(z.string(),z.any()).optional(),
   type: z.literal(jzodEnumElementTypesSchema.enum.object),
   // context: z.lazy(()=>z.record(z.string(),jzodElementSchema)).optional(),
@@ -368,6 +370,7 @@ export interface JzodReference {
   context?: {[attributeName:string]: JzodElement},
   type: 'schemaReference',
   definition: {
+    eager?: boolean,
     relativePath?: string,
     absolutePath?: string,
   },
@@ -380,6 +383,7 @@ export const jzodReferenceSchema: ZodType<JzodReference> = z.object({ // inherit
   type: z.literal(jzodEnumElementTypesSchema.enum.schemaReference),
   context: z.lazy(()=>z.record(z.string(),jzodElementSchema)).optional(),
   definition: z.object({
+    eager: z.boolean().optional(),
     relativePath: z.string().optional(),
     absolutePath: z.string().optional(),
   })
