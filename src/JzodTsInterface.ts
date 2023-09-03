@@ -133,6 +133,7 @@ export const jzodAttributeDateWithValidationsSchema = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
+  coerce: z.boolean().optional(),
   type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
   definition: z.literal(jzodEnumAttributeTypesSchema.enum.date),
   validations: z.array(jzodAttributeDateValidationsSchema),
@@ -145,6 +146,7 @@ export const jzodAttributeNumberWithValidationsSchema = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
+  coerce: z.boolean().optional(),
   type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
   definition: z.literal(jzodEnumAttributeTypesSchema.enum.number),
   validations: z.array(jzodAttributeNumberValidationsSchema),
@@ -157,6 +159,7 @@ export const jzodAttributeStringWithValidationsSchema = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
+  coerce: z.boolean().optional(),
   type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
   definition: z.literal(jzodEnumAttributeTypesSchema.enum.string),
   validations: z.array(jzodAttributeStringValidationsSchema),
@@ -169,6 +172,7 @@ export const jzodAttributeSchema = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
+  coerce: z.boolean().optional(),
   type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
   definition: z.lazy(()=>jzodEnumAttributeTypesSchema),
 }).strict();
@@ -313,6 +317,7 @@ export interface JzodObject extends JzodRoot {
   extend?: JzodReference | JzodObject,
   extra?: {[k:string]:any},
   type: "object",
+  nonStrict?: boolean,
   // context?: {[attributeName:string]: JzodElement},
   definition: {[attributeName:string]: JzodElement}
 }
@@ -323,7 +328,7 @@ export const jzodObjectSchema: z.ZodType<JzodObject> = z.object({
   extend: z.lazy(()=>z.union([jzodReferenceSchema,jzodObjectSchema])).optional(),
   extra: z.record(z.string(),z.any()).optional(),
   type: z.literal(jzodEnumElementTypesSchema.enum.object),
-  // context: z.lazy(()=>z.record(z.string(),jzodElementSchema)).optional(),
+  nonStrict: z.boolean().optional(),
   definition: z.lazy(()=>z.record(z.string(),jzodElementSchema)),
 }).strict();
 

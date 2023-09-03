@@ -23,6 +23,7 @@ export type jzodAttributeSchema = {
         [x: string]: any;
     } | undefined;
     type: "simpleType";
+    coerce?: boolean | undefined;
     definition?: jzodEnumAttributeTypesSchema;
 };
 export type jzodAttributeDateValidationsSchema = {
@@ -150,6 +151,7 @@ export type jzodObjectSchema = {
     } | undefined;
     extend?: (jzodReferenceSchema | jzodObjectSchema) | undefined;
     type: "object";
+    nonStrict?: boolean | undefined;
     definition: {
         [x: string]: jzodElementSchema;
     };
@@ -221,7 +223,7 @@ export type testJzodSchema4 = a;
 
 export const jzodBaseObjectSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict();
 export const jzodArraySchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("array"),definition:z.lazy(() =>jzodElementSchema),}).strict();
-export const jzodAttributeSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("simpleType"),definition:z.lazy(() =>jzodEnumAttributeTypesSchema),}).strict();
+export const jzodAttributeSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("simpleType"),coerce:z.boolean().optional(),definition:z.lazy(() =>jzodEnumAttributeTypesSchema),}).strict();
 export const jzodAttributeDateValidationsSchema=z.object({extra:z.record(z.string(),z.any()).optional(),type:z.enum(["min","max"] as any),parameter:z.any(),}).strict();
 export const jzodAttributeDateWithValidationsSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("simpleType"),definition:z.literal("date"),validations:z.array(z.lazy(() =>jzodAttributeDateValidationsSchema)),}).strict();
 export const jzodAttributeNumberValidationsSchema=z.object({extra:z.record(z.string(),z.any()).optional(),type:z.enum(["gt","gte","lt","lte","int","positive","nonpositive","negative","nonnegative","multipleOf","finite","safe"] as any),parameter:z.any(),}).strict();
@@ -237,7 +239,7 @@ export const jzodLazySchema=z.object({optional:z.boolean().optional(),nullable:z
 export const jzodLiteralSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("literal"),definition:z.string(),}).strict();
 export const jzodIntersectionSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("intersection"),definition:z.object({left:z.lazy(() =>jzodElementSchema),right:z.lazy(() =>jzodElementSchema),}).strict(),}).strict();
 export const jzodMapSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("map"),definition:z.tuple(["z.lazy(() =>jzodElementSchema)","z.lazy(() =>jzodElementSchema)"] as any),}).strict();
-export const jzodObjectSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({extend:z.union([z.lazy(() =>jzodReferenceSchema),z.lazy(() =>jzodObjectSchema),]).optional(),type:z.literal("object"),definition:z.record(z.string(),z.lazy(() =>jzodElementSchema)),}).strict();
+export const jzodObjectSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({extend:z.union([z.lazy(() =>jzodReferenceSchema),z.lazy(() =>jzodObjectSchema),]).optional(),type:z.literal("object"),nonStrict:z.boolean().optional(),definition:z.record(z.string(),z.lazy(() =>jzodElementSchema)),}).strict();
 export const jzodPromiseSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("promise"),definition:z.lazy(() =>jzodElementSchema),}).strict();
 export const jzodRecordSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("record"),definition:z.lazy(() =>jzodElementSchema),}).strict();
 export const jzodReferenceSchema=z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("schemaReference"),context:z.record(z.string(),z.lazy(() =>jzodElementSchema)).optional(),definition:z.object({eager:z.boolean().optional(),relativePath:z.string().optional(),absolutePath:z.string().optional(),}).strict(),}).strict();
