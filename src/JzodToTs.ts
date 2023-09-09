@@ -79,7 +79,7 @@ export function jzodToTsCode (
 
   const typeAliasesAndZodText = jzodToTsTypeAliasesAndZodText(jzodElement, typeName);
 
-  const bodyJsCode = `export const ${schemaName} = ${typeAliasesAndZodText.mainZodText};`;
+  const bodyJsCode = `export const ${schemaName}: z.ZodType<${schemaName}> = ${typeAliasesAndZodText.mainZodText};`;
 
   const contextTsTypesString = printTsTypeAliases(typeAliasesAndZodText.contextTsTypeAliases, exportPrefix);
   // console.log("getTsCodeCorrespondingToZodSchemaAndDescription contextTsTypesString",contextTsTypesString);
