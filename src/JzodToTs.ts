@@ -87,7 +87,7 @@ export function jzodToTsCode (
   const contextJsCode = typeAliasesAndZodText.contextZodText
     ? Object.entries(typeAliasesAndZodText.contextZodText).reduce((acc, curr) => {
         return `${acc}
-export const ${curr[0]}=${curr[1]};`;
+export const ${curr[0]}:z.ZodType<${curr[0]}> = ${curr[1]};`;
       }, "")
     : ""
   ;
