@@ -6,6 +6,6 @@ export type b = {
 };
 export type testJzodSchema2 = b;
 
-export const a=z.string();
-export const b=z.object({test:z.lazy(() =>a),}).strict();
-export const testJzodSchema2 = z.lazy(() =>b);
+export const a:z.ZodType<a> = z.string();
+export const b:z.ZodType<b> = z.object({test:z.lazy(() =>a),}).strict();
+export const testJzodSchema2: z.ZodType<testJzodSchema2> = z.lazy(() =>b);
