@@ -1,5 +1,5 @@
 import { ZodType, ZodTypeAny, z } from "zod";
 
-export type testJzodSchema1 = string;
+export type TestJzodSchema1 = string;
 
-export const testJzodSchema1: z.ZodType<testJzodSchema1> = z.string();
+export const testJzodSchema1: z.ZodType<TestJzodSchema1> = z.string();

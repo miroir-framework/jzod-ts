@@ -3,7 +3,7 @@ import * as path from "path";
 
 import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
 import { jzodToTsCode } from "../src/JzodToTs";
-import { JzodElement, jzodElementSchema } from "../src/JzodTsInterface";
+import { JzodElement, jzodElement } from "../src/JzodTsInterface";
 
 const refsPath = "./tests/resources"
 const tmpPath = "./tests/tmp";
@@ -84,7 +84,7 @@ describe(
             ...jzodBootstrapElementSchema.context,
             a: {
               type: "array",
-              definition: { type: "schemaReference", definition: {relativePath: "jzodArraySchema"} }
+              definition: { type: "schemaReference", definition: {relativePath: "jzodArray"} }
             }
           },
           definition: {

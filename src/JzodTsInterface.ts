@@ -6,7 +6,7 @@ const jzodRootSchema = z.object({
 type JzodRoot = z.infer<typeof jzodRootSchema>;
 
 // ##############################################################################################################
-export const jzodEnumAttributeTypesSchema = z.enum([
+export const jzodEnumAttributeTypes = z.enum([
   "any",
   "bigint",
   "boolean",
@@ -21,10 +21,10 @@ export const jzodEnumAttributeTypesSchema = z.enum([
   "void",
 ])
 
-export type JzodEnumTypes = z.infer<typeof jzodEnumAttributeTypesSchema>;
+export type JzodEnumTypes = z.infer<typeof jzodEnumAttributeTypes>;
 
 // ##############################################################################################################
-export const jzodEnumElementTypesSchema = z.enum([
+export const jzodEnumElementTypes = z.enum([
   "array",
   "enum",
   "function",
@@ -42,7 +42,7 @@ export const jzodEnumElementTypesSchema = z.enum([
   "union",
 ])
 
-export type JzodEnumElementTypes = z.infer<typeof jzodEnumElementTypesSchema>;
+export type JzodEnumElementTypes = z.infer<typeof jzodEnumElementTypes>;
 
 
 // ##############################################################################################################
@@ -54,16 +54,16 @@ export interface JzodArray extends JzodRoot {
   definition: JzodElement
 }
 
-export const jzodArraySchema: z.ZodType<JzodArray> = z.object({ // issue with JsonSchema conversion when using extend from ZodRootSchema, although the 2 are functionnaly equivalent
+export const jzodArray: z.ZodType<JzodArray> = z.object({ // issue with JsonSchema conversion when using extend from ZodRootSchema, although the 2 are functionnaly equivalent
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   type: z.literal('array'),
-  definition: z.lazy(()=>jzodElementSchema)
+  definition: z.lazy(()=>jzodElement)
 }).strict();
 
 // ##############################################################################################################
-export const jzodAttributeDateValidationsSchema = z
+export const jzodAttributeDateValidations = z
   .object({
     extra: z.record(z.string(), z.any()).optional(),
     type: z.enum([
@@ -74,10 +74,10 @@ export const jzodAttributeDateValidationsSchema = z
   })
   .strict();
 
-export type JzodAttributeDateValidations = z.infer<typeof jzodAttributeDateValidationsSchema>;
+export type JzodAttributeDateValidations = z.infer<typeof jzodAttributeDateValidations>;
 
 // ##############################################################################################################
-export const jzodAttributeNumberValidationsSchema = z
+export const jzodAttributeNumberValidations = z
   .object({
     extra: z.record(z.string(), z.any()).optional(),
     type: z.enum([
@@ -98,10 +98,10 @@ export const jzodAttributeNumberValidationsSchema = z
   })
   .strict();
 
-export type JzodAttributeNumberValidations = z.infer<typeof jzodAttributeNumberValidationsSchema>;
+export type JzodAttributeNumberValidations = z.infer<typeof jzodAttributeNumberValidations>;
 
 // ##############################################################################################################
-export const jzodAttributeStringValidationsSchema = z
+export const jzodAttributeStringValidations = z
   .object({
     extra: z.record(z.string(), z.any()).optional(),
     type: z.enum([
@@ -126,58 +126,58 @@ export const jzodAttributeStringValidationsSchema = z
   })
   .strict();
 
-export type JzodAttributeStringValidations = z.infer<typeof jzodAttributeStringValidationsSchema>;
+export type JzodAttributeStringValidations = z.infer<typeof jzodAttributeStringValidations>;
 
 // ##############################################################################################################
-export const jzodAttributeDateWithValidationsSchema = z.object({
+export const jzodAttributeDateWithValidations = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   coerce: z.boolean().optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
-  definition: z.literal(jzodEnumAttributeTypesSchema.enum.date),
-  validations: z.array(jzodAttributeDateValidationsSchema),
+  type: z.literal(jzodEnumElementTypes.enum.simpleType),
+  definition: z.literal(jzodEnumAttributeTypes.enum.date),
+  validations: z.array(jzodAttributeDateValidations),
 }).strict();
 
-export type JzodAttributeDateWithValidations = z.infer<typeof jzodAttributeDateWithValidationsSchema>;
+export type JzodAttributeDateWithValidations = z.infer<typeof jzodAttributeDateWithValidations>;
 
 // ##############################################################################################################
-export const jzodAttributeNumberWithValidationsSchema = z.object({
+export const jzodAttributeNumberWithValidations = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   coerce: z.boolean().optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
-  definition: z.literal(jzodEnumAttributeTypesSchema.enum.number),
-  validations: z.array(jzodAttributeNumberValidationsSchema),
+  type: z.literal(jzodEnumElementTypes.enum.simpleType),
+  definition: z.literal(jzodEnumAttributeTypes.enum.number),
+  validations: z.array(jzodAttributeNumberValidations),
 }).strict();
 
-export type JzodAttributeNumberWithValidations = z.infer<typeof jzodAttributeNumberWithValidationsSchema>;
+export type JzodAttributeNumberWithValidations = z.infer<typeof jzodAttributeNumberWithValidations>;
 
 // ##############################################################################################################
-export const jzodAttributeStringWithValidationsSchema = z.object({
+export const jzodAttributeStringWithValidations = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   coerce: z.boolean().optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
-  definition: z.literal(jzodEnumAttributeTypesSchema.enum.string),
-  validations: z.array(jzodAttributeStringValidationsSchema),
+  type: z.literal(jzodEnumElementTypes.enum.simpleType),
+  definition: z.literal(jzodEnumAttributeTypes.enum.string),
+  validations: z.array(jzodAttributeStringValidations),
 }).strict();
 
-export type JzodAttributeStringWithValidations = z.infer<typeof jzodAttributeStringWithValidationsSchema>;
+export type JzodAttributeStringWithValidations = z.infer<typeof jzodAttributeStringWithValidations>;
 
 // ##############################################################################################################
-export const jzodAttributeSchema = z.object({
+export const jzodAttribute = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   coerce: z.boolean().optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.simpleType),
-  definition: z.lazy(()=>jzodEnumAttributeTypesSchema),
+  type: z.literal(jzodEnumElementTypes.enum.simpleType),
+  definition: z.lazy(()=>jzodEnumAttributeTypes),
 }).strict();
 
-export type JzodAttribute = z.infer<typeof jzodAttributeSchema>;
+export type JzodAttribute = z.infer<typeof jzodAttribute>;
 
 
 // ##############################################################################################################
@@ -202,41 +202,41 @@ export type JzodElement =
 | JzodUnion
 ;
 
-export const jzodElementSchema: z.ZodType<JzodElement> = z.union([
-  z.lazy(()=>jzodArraySchema),
-  z.lazy(()=>jzodAttributeSchema),
-  z.lazy(()=>jzodAttributeDateWithValidationsSchema),
-  z.lazy(()=>jzodAttributeNumberWithValidationsSchema),
-  z.lazy(()=>jzodAttributeStringWithValidationsSchema),
-  z.lazy(()=>jzodEnumSchema),
-  z.lazy(()=>jzodFunctionSchema),
-  z.lazy(()=>jzodLazySchema),
-  z.lazy(()=>jzodLiteralSchema),
-  z.lazy(()=>jzodIntersectionSchema),
+export const jzodElement: z.ZodType<JzodElement> = z.union([
+  z.lazy(()=>jzodArray),
+  z.lazy(()=>jzodAttribute),
+  z.lazy(()=>jzodAttributeDateWithValidations),
+  z.lazy(()=>jzodAttributeNumberWithValidations),
+  z.lazy(()=>jzodAttributeStringWithValidations),
+  z.lazy(()=>jzodEnum),
+  z.lazy(()=>jzodFunction),
+  z.lazy(()=>jzodLazy),
+  z.lazy(()=>jzodLiteral),
+  z.lazy(()=>jzodIntersection),
   z.lazy(()=>jzodMapSchema),
-  z.lazy(()=>jzodObjectSchema),
-  z.lazy(()=>jzodPromiseSchema),
-  z.lazy(()=>jzodRecordSchema),
-  z.lazy(()=>jzodReferenceSchema),
-  z.lazy(()=>jzodSetSchema),
-  z.lazy(()=>jzodTupleSchema),
-  z.lazy(()=>jzodUnionSchema),
+  z.lazy(()=>jzodObject),
+  z.lazy(()=>jzodPromise),
+  z.lazy(()=>jzodRecord),
+  z.lazy(()=>jzodReference),
+  z.lazy(()=>jzodSet),
+  z.lazy(()=>jzodTuple),
+  z.lazy(()=>jzodUnion),
 ])
 
 // // ##############################################################################################################
-// export const jzodElementSetSchema = z.record(z.string(),jzodElementSchema);
+// export const jzodElementSetSchema = z.record(z.string(),jzodElement);
 // export type JzodElementSet = z.infer<typeof jzodElementSetSchema>;
 
 // ##############################################################################################################
-export const jzodEnumSchema = z.object({
+export const jzodEnum = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.enum),
+  type: z.literal(jzodEnumElementTypes.enum.enum),
   definition: z.array(z.string()),
 }).strict();
 
-export type JzodEnum = z.infer<typeof jzodEnumSchema>;
+export type JzodEnum = z.infer<typeof jzodEnum>;
 
 // ##############################################################################################################
 export interface JzodFunction {
@@ -246,35 +246,35 @@ export interface JzodFunction {
   type: 'function',
   definition: {args: JzodElement[], returns?: JzodElement},
 }
-export const jzodFunctionSchema: ZodType<JzodFunction> = z.object({
-  type: z.literal(jzodEnumElementTypesSchema.enum.function),
+export const jzodFunction: ZodType<JzodFunction> = z.object({
+  type: z.literal(jzodEnumElementTypes.enum.function),
   extra: z.record(z.string(),z.any()).optional(),
   // anyway, arg and returns types are not use upon validation to check the function's interface. Suffices for it to be a function, it is then valid.
   definition: z.object({
-    args:z.array(jzodElementSchema),
-    returns: jzodElementSchema.optional(),
+    args:z.array(jzodElement),
+    returns: jzodElement.optional(),
   })
 }).strict();
 
 // ##############################################################################################################
-export const jzodLazySchema = z.object({
-  type: z.literal(jzodEnumElementTypesSchema.enum.lazy),
+export const jzodLazy = z.object({
+  type: z.literal(jzodEnumElementTypes.enum.lazy),
   extra: z.record(z.string(),z.any()).optional(),
-  definition: jzodFunctionSchema,
+  definition: jzodFunction,
 }).strict();
 
-export type JzodLazy = z.infer<typeof jzodLazySchema>;
+export type JzodLazy = z.infer<typeof jzodLazy>;
 
 // ##############################################################################################################
-export const jzodLiteralSchema = z.object({
+export const jzodLiteral = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.literal),
+  type: z.literal(jzodEnumElementTypes.enum.literal),
   definition: z.string(),
 }).strict();
 
-export type JzodLiteral = z.infer<typeof jzodLiteralSchema>;
+export type JzodLiteral = z.infer<typeof jzodLiteral>;
 
 // ##############################################################################################################
 export interface JzodIntersection {
@@ -285,12 +285,12 @@ export interface JzodIntersection {
   definition: {left: JzodElement, right: JzodElement},
 }
 
-export const jzodIntersectionSchema: z.ZodType<JzodIntersection> = z.object({
+export const jzodIntersection: z.ZodType<JzodIntersection> = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.intersection),
-  definition: z.lazy(()=>z.object({left: jzodElementSchema, right: jzodElementSchema}))
+  type: z.literal(jzodEnumElementTypes.enum.intersection),
+  definition: z.lazy(()=>z.object({left: jzodElement, right: jzodElement}))
 }).strict();
 
 // ##############################################################################################################
@@ -307,7 +307,7 @@ export const jzodMapSchema: z.ZodType<JzodMap> = z.object({ // issue with JsonSc
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   type: z.literal('map'),
-  definition: z.lazy(()=>z.tuple([jzodElementSchema, jzodElementSchema]))
+  definition: z.lazy(()=>z.tuple([jzodElement, jzodElement]))
 }).strict();
 
 // ##############################################################################################################
@@ -322,14 +322,14 @@ export interface JzodObject extends JzodRoot {
   definition: {[attributeName:string]: JzodElement}
 }
 
-export const jzodObjectSchema: z.ZodType<JzodObject> = z.object({
+export const jzodObject: z.ZodType<JzodObject> = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
-  extend: z.lazy(()=>z.union([jzodReferenceSchema,jzodObjectSchema])).optional(),
+  extend: z.lazy(()=>z.union([jzodReference,jzodObject])).optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.object),
+  type: z.literal(jzodEnumElementTypes.enum.object),
   nonStrict: z.boolean().optional(),
-  definition: z.lazy(()=>z.record(z.string(),jzodElementSchema)),
+  definition: z.lazy(()=>z.record(z.string(),jzodElement)),
 }).strict();
 
 // ##############################################################################################################
@@ -341,12 +341,12 @@ export interface JzodPromise extends JzodRoot {
   definition: JzodElement
 }
 
-export const jzodPromiseSchema: z.ZodType<JzodPromise> = z.object({ // issue with JsonSchema conversion when using extend from ZodRootSchema, although the 2 are functionnaly equivalent
+export const jzodPromise: z.ZodType<JzodPromise> = z.object({ // issue with JsonSchema conversion when using extend from ZodRootSchema, although the 2 are functionnaly equivalent
   // optional: z.boolean().optional(),
   // nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   type: z.literal('promise'),
-  definition: z.lazy(()=>jzodElementSchema)
+  definition: z.lazy(()=>jzodElement)
 }).strict();
 
 
@@ -359,12 +359,12 @@ export interface JzodRecord {
   definition: JzodElement,
 }
 
-export const jzodRecordSchema: z.ZodType<JzodRecord> = z.object({
+export const jzodRecord: z.ZodType<JzodRecord> = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.record),
-  definition: z.lazy(()=>jzodElementSchema)
+  type: z.literal(jzodEnumElementTypes.enum.record),
+  definition: z.lazy(()=>jzodElement)
 }).strict();
 
 // ##############################################################################################################
@@ -381,12 +381,12 @@ export interface JzodReference {
   },
 }
 
-export const jzodReferenceSchema: ZodType<JzodReference> = z.object({ // inheritance from ZodRootSchema leads to a different JsonSchema thus invalidates tests, although it is semantically equivalent
+export const jzodReference: ZodType<JzodReference> = z.object({ // inheritance from ZodRootSchema leads to a different JsonSchema thus invalidates tests, although it is semantically equivalent
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.schemaReference),
-  context: z.lazy(()=>z.record(z.string(),jzodElementSchema)).optional(),
+  type: z.literal(jzodEnumElementTypes.enum.schemaReference),
+  context: z.lazy(()=>z.record(z.string(),jzodElement)).optional(),
   definition: z.object({
     eager: z.boolean().optional(),
     relativePath: z.string().optional(),
@@ -394,7 +394,7 @@ export const jzodReferenceSchema: ZodType<JzodReference> = z.object({ // inherit
   })
 }).strict()
 
-// export type JzodReference = z.infer<typeof jzodReferenceSchema>;
+// export type JzodReference = z.infer<typeof jzodReference>;
 
 // ##############################################################################################################
 export interface JzodSet extends JzodRoot {
@@ -405,12 +405,12 @@ export interface JzodSet extends JzodRoot {
   definition: JzodElement
 }
 
-export const jzodSetSchema: z.ZodType<JzodSet> = z.object({ // issue with JsonSchema conversion when using extend from ZodRootSchema, although the 2 are functionnaly equivalent
+export const jzodSet: z.ZodType<JzodSet> = z.object({ // issue with JsonSchema conversion when using extend from ZodRootSchema, although the 2 are functionnaly equivalent
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
   type: z.literal('set'),
-  definition: z.lazy(()=>jzodElementSchema)
+  definition: z.lazy(()=>jzodElement)
 }).strict();
 
 // ##############################################################################################################
@@ -422,12 +422,12 @@ export interface JzodTuple {
   definition: JzodElement[],
 }
 
-export const jzodTupleSchema: z.ZodType<JzodTuple> = z.object({
+export const jzodTuple: z.ZodType<JzodTuple> = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.tuple),
-  definition: z.array(jzodElementSchema),
+  type: z.literal(jzodEnumElementTypes.enum.tuple),
+  definition: z.array(jzodElement),
 }).strict();
 
 // ##############################################################################################################
@@ -439,12 +439,12 @@ export interface JzodUnion {
   discriminator?: string,
   definition: JzodElement[],
 }
-export const jzodUnionSchema: z.ZodType<JzodUnion> = z.object({
+export const jzodUnion: z.ZodType<JzodUnion> = z.object({
   optional: z.boolean().optional(),
   nullable: z.boolean().optional(),
   extra: z.record(z.string(),z.any()).optional(),
-  type: z.literal(jzodEnumElementTypesSchema.enum.union),
+  type: z.literal(jzodEnumElementTypes.enum.union),
   discriminator: z.string().optional(),
-  definition: z.lazy(()=>z.array(jzodElementSchema))
+  definition: z.lazy(()=>z.array(jzodElement))
 }).strict();
 
