@@ -218,7 +218,7 @@ export type JzodUnionSchema = {
     discriminator?: string | undefined;
     definition: JzodElementSchema[];
 };
-export type A = JzodArraySchema[];
+export type A = JzodArray[];
 export type TestJzodSchema4 = A;
 
 export const jzodBaseObjectSchema:z.ZodType<JzodBaseObjectSchema> = z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict();
@@ -246,5 +246,5 @@ export const jzodReferenceSchema:z.ZodType<JzodReferenceSchema> = z.object({opti
 export const jzodSetSchema:z.ZodType<JzodSetSchema> = z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("set"),definition:z.lazy(() =>jzodElementSchema),}).strict();
 export const jzodTupleSchema:z.ZodType<JzodTupleSchema> = z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("tuple"),definition:z.array(z.lazy(() =>jzodElementSchema)),}).strict();
 export const jzodUnionSchema:z.ZodType<JzodUnionSchema> = z.object({optional:z.boolean().optional(),nullable:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),}).strict().extend({type:z.literal("union"),discriminator:z.string().optional(),definition:z.array(z.lazy(() =>jzodElementSchema)),}).strict();
-export const a:z.ZodType<A> = z.array(z.lazy(() =>jzodArraySchema));
+export const a:z.ZodType<A> = z.array(z.lazy(() =>jzodArray));
 export const testJzodSchema4: z.ZodType<TestJzodSchema4> = z.lazy(() =>a);
