@@ -4,7 +4,7 @@ import { GetType, createTypeAlias, printNode, withGetType, zodToTs } from "zod-t
 
 import { jzodElementSchemaToZodSchemaAndDescription } from "@miroir-framework/jzod";
 
-import { JzodElement } from "./JzodTsInterface";
+import { JzodElement } from "./generated_jzodBootstrapElementSchema";
 
 import { printTsTypeAliases } from "./tools";
 // ################################################################################################

@@ -24,7 +24,7 @@ export {
   jzodIntersection,
   jzodLazy,
   jzodLiteral,
-  jzodMapSchema,
+  jzodMap,
   jzodObject,
   jzodPromise,
   jzodRecord,
@@ -43,7 +43,7 @@ export {
   JzodAttributeStringWithValidations,
   JzodElement,
   JzodEnum,
-  JzodEnumTypes,
+  JzodEnumAttributeTypes,
   JzodFunction,
   JzodEnumElementTypes,
   JzodIntersection,
@@ -57,4 +57,4 @@ export {
   JzodSet,
   JzodUnion,
   JzodTuple,
-} from "./JzodTsInterface";
+} from "./generated_jzodBootstrapElementSchema";
