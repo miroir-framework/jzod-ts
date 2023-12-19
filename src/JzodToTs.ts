@@ -6,7 +6,7 @@ import { jzodElementSchemaToZodSchemaAndDescription } from "@miroir-framework/jz
 
 import { JzodElement } from "./generated_jzodBootstrapElementSchema";
 
-import { printTsTypeAliases } from "./tools.js";
+import { printTsTypeAliases } from "./tools";
 // ################################################################################################
 export type TsTypeAliases =  {
   [k: string]: ts.TypeAliasDeclaration;

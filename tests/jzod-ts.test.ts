@@ -3,7 +3,6 @@ import * as path from "path";
 
 import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
 import { jzodToTsCode } from "../src/JzodToTs";
-import { JzodElement, jzodElement } from "../src/JzodTsInterface";
 
 const refsPath = "./tests/resources"
 const tmpPath = "./tests/tmp";
@@ -13,7 +12,7 @@ const testJzodToTs = (
   // testDirectory: string,
   referenceFileName: string,
   testFileName: string,
-  testJzodSchema:JzodElement,
+  testJzodSchema: any, //JzodElement,
   exportPrefix: boolean,
   typeName: string
 ) => {
@@ -43,7 +42,7 @@ describe(
 
 
         // ########################################################################################
-        const testJzodSchema1: JzodElement = { type: "simpleType", definition: "string" };
+        const testJzodSchema1: any /**JzodElement*/ = { type: "simpleType", definition: "string" };
 
         testJzodToTs(
           "tsTypeGeneration-testJzodSchema1 - reference.ts",
@@ -54,7 +53,7 @@ describe(
         );
 
         // ########################################################################################
-        const testJzodSchema2: JzodElement = {
+        const testJzodSchema2: any /**JzodElement*/ = {
           type: "schemaReference",
           context: {
             a: { type: "simpleType", definition: "string" },
@@ -77,7 +76,7 @@ describe(
         );
 
         // ########################################################################################
-        const testJzodSchema4:JzodElement = 
+        const testJzodSchema4: any /**JzodElement*/ = 
         {
           type: "schemaReference", 
           context: {
