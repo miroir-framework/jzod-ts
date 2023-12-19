@@ -6,7 +6,7 @@ import { jzodElementSchemaToZodSchemaAndDescription } from "@miroir-framework/jz
 
 import { JzodElement } from "./generated_jzodBootstrapElementSchema";
 
-import { printTsTypeAliases } from "./tools";
+import { printTsTypeAliases } from "./tools.js";
 // ################################################################################################
 export type TsTypeAliases =  {
   [k: string]: ts.TypeAliasDeclaration;
@@ -34,7 +34,7 @@ export function jzodToTsTypeAliasesAndZodText(
       withGetType(innerReference, (ts:any) => {
         const actualTypeName = relativeReference?relativeReference.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
         return ts.factory.createTypeReferenceNode(
-          ts.factory.createIdentifier(actualTypeName ? actualTypeName : "RELATIVEPATH_NOT_DEFINED"),
+          ts.factory.createIdentifier(actualTypeName ?? "RELATIVEPATH_NOT_DEFINED"),
           undefined
         );
       }
@@ -67,7 +67,8 @@ export function jzodToTsCode (
   jzodElement: JzodElement,
   exportPrefix: boolean = true,
   typeName?: string,
-  typeSchema: boolean = false,
+  // typeSchema: boolean = false,
+  typeAnotationForSchema: string[] = [],
 ): string {
   // console.log(
   //   "################################### jzodToTsCode ",
@@ -77,13 +78,14 @@ export function jzodToTsCode (
   
   const schemaName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toLowerCase() + c):"";
   const actualTypeName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-  // console.log("jzodToTsCode convertedJsonZodSchema", bodyJsCode);
+
+  // console.log("jzodToTsCode typeAnotationForSchema", typeAnotationForSchema);
 
   const header = `import { ZodType, ZodTypeAny, z } from "zod";`;
 
   const typeAliasesAndZodText = jzodToTsTypeAliasesAndZodText(jzodElement, actualTypeName);
 
-  const bodyJsCode = typeSchema
+  const bodyJsCode = typeAnotationForSchema.includes(schemaName??"")
     ? `export const ${schemaName}: z.ZodType<${actualTypeName}> = ${typeAliasesAndZodText.mainZodText};`
     : `export const ${schemaName} = ${typeAliasesAndZodText.mainZodText};`;
 
@@ -93,12 +95,14 @@ export function jzodToTsCode (
   const contextJsCode = typeAliasesAndZodText.contextZodText
     ? Object.entries(typeAliasesAndZodText.contextZodText).reduce((acc, curr) => {
       const contextTypeName = curr[0]?curr[0].replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-      return typeSchema?
+      return typeAnotationForSchema.includes(curr[0])?
         `${acc}
-export const ${curr[0]}: z.ZodType<${contextTypeName}> = ${curr[1]};`:
+export const ${curr[0]}: z.ZodType<${contextTypeName}> = ${curr[1]};`
+      :
         `${acc}
-export const ${curr[0]} = ${curr[1]};`;
-      }, "")
+export const ${curr[0]} = ${curr[1]};`
+      ;
+    }, "")
     : ""
   ;
 

@@ -1,19 +1,16 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { jzodBootstrapElementSchema } from '@miroir-framework/jzod';
 
-import { jzodToTsCode } from './JzodToTs';
+import { jzodToTsCode } from './JzodToTs.js';
 
 export function generateZodSchemaFileFromJzodSchema(
-  // jzodElement,
-  // targetFileName,
-  // jzodSchemaVariableName,
   jzodElement: any, //JzodElement,
   targetFileName: string,
   jzodSchemaVariableName:string,
 ) {
   // console.log("generateZodSchemaFileFromJzodSchema called!");
  
-  const newFileContentsNotFormated = jzodToTsCode(jzodElement, true, jzodSchemaVariableName,true)
+  const newFileContentsNotFormated = jzodToTsCode(jzodElement, true, jzodSchemaVariableName,Object.keys(jzodElement.context))
   // const newFileContents = `import { JzodObject, jzodObject } from "@miroir-framework/jzod-ts";
   const newFileContents = `${newFileContentsNotFormated}
 `;
@@ -54,5 +51,4 @@ try {
   
 } catch (error) {
   console.error("could not generate TS files from Jzod schemas", error);
-  
 }
