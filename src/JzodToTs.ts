@@ -27,7 +27,7 @@ export function jzodToTsTypeAliasesAndZodText(
 ): TsTypeAliasesAndZodText
 {
   const elementZodSchemaAndDescription = jzodElementSchemaToZodSchemaAndDescription(
-    element,
+    element as any,
     () => ({}),
     () => ({}),
     (innerReference: ZodTypeAny & GetType, relativeReference: string | undefined) =>
