@@ -190,6 +190,7 @@ export type JzodReference = {
     } | undefined;
     definition: {
         eager?: boolean | undefined;
+        partial?: boolean | undefined;
         relativePath?: string | undefined;
         absolutePath?: string | undefined;
     };
@@ -246,7 +247,7 @@ export const jzodMap = z.object({optional:z.boolean().optional(), nullable:z.boo
 export const jzodObject = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({extend:z.union([z.lazy(() =>jzodReference), z.lazy(() =>jzodObject)]).optional(), type:z.literal("object"), nonStrict:z.boolean().optional(), partial:z.boolean().optional(), definition:z.record(z.string(),z.lazy(() =>jzodElement))}).strict();
 export const jzodPromise = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("promise"), definition:z.lazy(() =>jzodElement)}).strict();
 export const jzodRecord = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("record"), definition:z.lazy(() =>jzodElement)}).strict();
-export const jzodReference = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("schemaReference"), context:z.record(z.string(),z.lazy(() =>jzodElement)).optional(), definition:z.object({eager:z.boolean().optional(), relativePath:z.string().optional(), absolutePath:z.string().optional()}).strict()}).strict();
+export const jzodReference = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("schemaReference"), context:z.record(z.string(),z.lazy(() =>jzodElement)).optional(), definition:z.object({eager:z.boolean().optional(), partial:z.boolean().optional(), relativePath:z.string().optional(), absolutePath:z.string().optional()}).strict()}).strict();
 export const jzodSet = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("set"), definition:z.lazy(() =>jzodElement)}).strict();
 export const jzodTuple = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("tuple"), definition:z.array(z.lazy(() =>jzodElement))}).strict();
 export const jzodUnion = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("union"), discriminator:z.string().optional(), definition:z.array(z.lazy(() =>jzodElement))}).strict();

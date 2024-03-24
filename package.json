@@ -1,7 +1,7 @@
 {
   "name": "@miroir-framework/jzod-ts",
   "private": false,
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "The Typescript-related functionalities of Jzod.",
   "main": "dist/bundle.js",
   "types": "dist/bundle.d.ts",
@@ -17,8 +17,14 @@
   "homepage": "https://github.com/miroir-framework/jzod/#readme",
   "bugs": "https://github.com/miroir-framework/jzod/issues",
   "license": "MIT",
+  "files": [
+    "LICENSE.md",
+    "package.json",
+    "dist/bundle.js",
+    "dist/bundle.d.ts"
+  ],
   "dependencies": {
-    "@miroir-framework/jzod": "0.6.2",
+    "@miroir-framework/jzod": "0.6.3",
     "zod": "^3.22.2",
     "zod-to-ts": "^1.2.0"
   },
