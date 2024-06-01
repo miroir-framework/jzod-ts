@@ -1,7 +1,7 @@
 {
   "name": "@miroir-framework/jzod-ts",
   "private": false,
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "The Typescript-related functionalities of Jzod.",
   "main": "dist/bundle.js",
   "types": "dist/bundle.d.ts",
@@ -9,7 +9,6 @@
   "scripts": {
     "preBuild": "tsc --rootDir . --baseUrl . --module ESnext --target ES2017 --moduleResolution node --allowSyntheticDefaultImports --outdir ./tmp/ && node ./tmp/src/preBuild.js",
     "preBuildRun": "node ./tmp/src/preBuild.js",
-    "compile": "npx tsc",
     "build": "rollup --config",
     "test": "cross-env NODE_ENV=test jest --verbose --silent=false -t"
   },
@@ -24,7 +23,7 @@
     "dist/bundle.d.ts"
   ],
   "dependencies": {
-    "@miroir-framework/jzod": "0.6.3",
+    "@miroir-framework/jzod": "0.7.0",
     "zod": "^3.22.2",
     "zod-to-ts": "^1.2.0"
   },

@@ -56,7 +56,7 @@ describe(
         const testJzodSchema2: any /**JzodElement*/ = {
           type: "schemaReference",
           context: {
-            a: { type: "simpleType", definition: "string" },
+            a: { type: "string" },
             b: {
               type: "object",
               definition: {
