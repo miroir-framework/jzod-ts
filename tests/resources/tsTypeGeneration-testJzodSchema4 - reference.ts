@@ -16,16 +16,6 @@ export type JzodArray = {
     type: "array";
     definition: JzodElement;
 };
-export type JzodAttribute = {
-    optional?: boolean | undefined;
-    nullable?: boolean | undefined;
-    extra?: {
-        [x: string]: any;
-    } | undefined;
-    type: "simpleType";
-    coerce?: boolean | undefined;
-    definition: JzodEnumAttributeTypes;
-};
 export type JzodPlainAttribute = {
     optional?: boolean | undefined;
     nullable?: boolean | undefined;
@@ -41,17 +31,6 @@ export type JzodAttributeDateValidations = {
     } | undefined;
     type: "min" | "max";
     parameter?: any;
-};
-export type JzodAttributeDateWithValidations = {
-    optional?: boolean | undefined;
-    nullable?: boolean | undefined;
-    extra?: {
-        [x: string]: any;
-    } | undefined;
-    type: "simpleType";
-    definition: "date";
-    coerce?: boolean | undefined;
-    validations: JzodAttributeDateValidations[];
 };
 export type JzodAttributePlainDateWithValidations = {
     optional?: boolean | undefined;
@@ -70,17 +49,6 @@ export type JzodAttributeNumberValidations = {
     type: "gt" | "gte" | "lt" | "lte" | "int" | "positive" | "nonpositive" | "negative" | "nonnegative" | "multipleOf" | "finite" | "safe";
     parameter?: any;
 };
-export type JzodAttributeNumberWithValidations = {
-    optional?: boolean | undefined;
-    nullable?: boolean | undefined;
-    extra?: {
-        [x: string]: any;
-    } | undefined;
-    type: "simpleType";
-    definition: "number";
-    coerce?: boolean | undefined;
-    validations: JzodAttributeNumberValidations[];
-};
 export type JzodAttributePlainNumberWithValidations = {
     optional?: boolean | undefined;
     nullable?: boolean | undefined;
@@ -98,17 +66,6 @@ export type JzodAttributeStringValidations = {
     type: "max" | "min" | "length" | "email" | "url" | "emoji" | "uuid" | "cuid" | "cuid2" | "ulid" | "regex" | "includes" | "startsWith" | "endsWith" | "datetime" | "ip";
     parameter?: any;
 };
-export type JzodAttributeStringWithValidations = {
-    optional?: boolean | undefined;
-    nullable?: boolean | undefined;
-    extra?: {
-        [x: string]: any;
-    } | undefined;
-    type: "simpleType";
-    definition: "string";
-    coerce?: boolean | undefined;
-    validations: JzodAttributeStringValidations[];
-};
 export type JzodAttributePlainStringWithValidations = {
     optional?: boolean | undefined;
     nullable?: boolean | undefined;
@@ -119,7 +76,7 @@ export type JzodAttributePlainStringWithValidations = {
     coerce?: boolean | undefined;
     validations: JzodAttributeStringValidations[];
 };
-export type JzodElement = JzodArray | JzodAttribute | JzodPlainAttribute | JzodAttributeDateWithValidations | JzodAttributePlainDateWithValidations | JzodAttributeNumberWithValidations | JzodAttributePlainNumberWithValidations | JzodAttributeStringWithValidations | JzodAttributePlainStringWithValidations | JzodEnum | JzodFunction | JzodLazy | JzodLiteral | JzodIntersection | JzodMap | JzodObject | JzodPromise | JzodRecord | JzodReference | JzodSet | JzodTuple | JzodUnion;
+export type JzodElement = JzodArray | JzodPlainAttribute | JzodAttributePlainDateWithValidations | JzodAttributePlainNumberWithValidations | JzodAttributePlainStringWithValidations | JzodEnum | JzodFunction | JzodLazy | JzodLiteral | JzodIntersection | JzodMap | JzodObject | JzodPromise | JzodRecord | JzodReference | JzodSet | JzodTuple | JzodUnion;
 export type JzodEnum = {
     optional?: boolean | undefined;
     nullable?: boolean | undefined;
@@ -273,18 +230,14 @@ export type TestJzodSchema4 = A;
 
 export const jzodBaseObject = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict();
 export const jzodArray = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("array"), definition:z.lazy(() =>jzodElement)}).strict();
-export const jzodAttribute = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("simpleType"), coerce:z.boolean().optional(), definition:z.lazy(() =>jzodEnumAttributeTypes)}).strict();
 export const jzodPlainAttribute = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.lazy(() =>jzodEnumAttributeTypes), coerce:z.boolean().optional()}).strict();
 export const jzodAttributeDateValidations = z.object({extra:z.record(z.string(),z.any()).optional(), type:z.enum(["min","max"]), parameter:z.any()}).strict();
-export const jzodAttributeDateWithValidations = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("simpleType"), definition:z.literal("date"), coerce:z.boolean().optional(), validations:z.array(z.lazy(() =>jzodAttributeDateValidations))}).strict();
 export const jzodAttributePlainDateWithValidations = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("date"), coerce:z.boolean().optional(), validations:z.array(z.lazy(() =>jzodAttributeDateValidations))}).strict();
 export const jzodAttributeNumberValidations = z.object({extra:z.record(z.string(),z.any()).optional(), type:z.enum(["gt","gte","lt","lte","int","positive","nonpositive","negative","nonnegative","multipleOf","finite","safe"]), parameter:z.any()}).strict();
-export const jzodAttributeNumberWithValidations = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("simpleType"), definition:z.literal("number"), coerce:z.boolean().optional(), validations:z.array(z.lazy(() =>jzodAttributeNumberValidations))}).strict();
 export const jzodAttributePlainNumberWithValidations = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("number"), coerce:z.boolean().optional(), validations:z.array(z.lazy(() =>jzodAttributeNumberValidations))}).strict();
 export const jzodAttributeStringValidations = z.object({extra:z.record(z.string(),z.any()).optional(), type:z.enum(["max","min","length","email","url","emoji","uuid","cuid","cuid2","ulid","regex","includes","startsWith","endsWith","datetime","ip"]), parameter:z.any()}).strict();
-export const jzodAttributeStringWithValidations = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("simpleType"), definition:z.literal("string"), coerce:z.boolean().optional(), validations:z.array(z.lazy(() =>jzodAttributeStringValidations))}).strict();
 export const jzodAttributePlainStringWithValidations = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("string"), coerce:z.boolean().optional(), validations:z.array(z.lazy(() =>jzodAttributeStringValidations))}).strict();
-export const jzodElement = z.union([z.lazy(() =>jzodArray), z.lazy(() =>jzodAttribute), z.lazy(() =>jzodPlainAttribute), z.lazy(() =>jzodAttributeDateWithValidations), z.lazy(() =>jzodAttributePlainDateWithValidations), z.lazy(() =>jzodAttributeNumberWithValidations), z.lazy(() =>jzodAttributePlainNumberWithValidations), z.lazy(() =>jzodAttributeStringWithValidations), z.lazy(() =>jzodAttributePlainStringWithValidations), z.lazy(() =>jzodEnum), z.lazy(() =>jzodFunction), z.lazy(() =>jzodLazy), z.lazy(() =>jzodLiteral), z.lazy(() =>jzodIntersection), z.lazy(() =>jzodMap), z.lazy(() =>jzodObject), z.lazy(() =>jzodPromise), z.lazy(() =>jzodRecord), z.lazy(() =>jzodReference), z.lazy(() =>jzodSet), z.lazy(() =>jzodTuple), z.lazy(() =>jzodUnion)]);
+export const jzodElement = z.union([z.lazy(() =>jzodArray), z.lazy(() =>jzodPlainAttribute), z.lazy(() =>jzodAttributePlainDateWithValidations), z.lazy(() =>jzodAttributePlainNumberWithValidations), z.lazy(() =>jzodAttributePlainStringWithValidations), z.lazy(() =>jzodEnum), z.lazy(() =>jzodFunction), z.lazy(() =>jzodLazy), z.lazy(() =>jzodLiteral), z.lazy(() =>jzodIntersection), z.lazy(() =>jzodMap), z.lazy(() =>jzodObject), z.lazy(() =>jzodPromise), z.lazy(() =>jzodRecord), z.lazy(() =>jzodReference), z.lazy(() =>jzodSet), z.lazy(() =>jzodTuple), z.lazy(() =>jzodUnion)]);
 export const jzodEnum = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.record(z.string(),z.any()).optional()}).strict().extend({type:z.literal("enum"), definition:z.array(z.string())}).strict();
 export const jzodEnumAttributeTypes = z.enum(["any","bigint","boolean","date","never","null","number","string","uuid","undefined","unknown","void"]);
 export const jzodEnumElementTypes = z.enum(["array","date","enum","function","lazy","literal","intersection","map","number","object","promise","record","schemaReference","set","simpleType","string","tuple","union"]);
