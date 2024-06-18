@@ -42,11 +42,11 @@ export default (path, options) =>({
           allowSyntheticDefaultImports:true,
           allowJs: true,
           moduleResolution: "node",
-          // module: "ESNext",
-          // target: "ES2017",
-                // rootDir: "./src/",
+          // module:"commonjs"
+          module: "ESNext",
+          target: "ES2017",
+          // rootDir: "./src/",
           traceResolution: true,
-          module:"commonjs"
         },
       }
     ],
