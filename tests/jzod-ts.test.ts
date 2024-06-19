@@ -42,7 +42,7 @@ describe(
 
 
         // ########################################################################################
-        const testJzodSchema1: any /**JzodElement*/ = { type: "simpleType", definition: "string" };
+        const testJzodSchema1: any /**JzodElement*/ = { type: "string" };
 
         testJzodToTs(
           "tsTypeGeneration-testJzodSchema1 - reference.ts",
