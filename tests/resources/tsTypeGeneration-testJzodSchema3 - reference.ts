@@ -1,19 +1,11 @@
 import { ZodType, ZodTypeAny, z } from "zod";
 
-
-type jzodLiteral = {
-    optional?: boolean | undefined;
-    extra?: {
-        [x: string]: any;
-    } | undefined;
-    type: "literal";
-    definition: string;
-};
-type jzodElement = jzodLiteral;
-type testJzodSchema3 = {
-    b: jzodElement[];
+export type TestJzodSchema3 = {
+    a: string | {
+        b: number;
+    };
+} | {
+    b: number;
 };
 
-export const jzodLiteral=z.object({optional:z.boolean().optional(),extra:z.record(z.string(),z.any()).optional(),type:z.literal("literal"),definition:z.string(),}).strict();
-export const jzodElement=z.union([z.lazy(() =>jzodLiteral),]);
-export const testJzodSchema3 = z.object({b:z.array(z.lazy(() =>jzodElement)),}).strict();
+export const testJzodSchema3 = z.union([z.object({a:z.union([z.string(), z.object({b:z.number()}).strict()])}).strict(),z.object({b:z.number()}).strict()]);

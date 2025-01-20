@@ -76,6 +76,28 @@ describe(
         );
 
         // ########################################################################################
+        const testJzodSchema3: any /**JzodElement*/ = {
+          type: "object",
+          carryOn: {
+            type: "object",
+            definition: {
+              b: { type: "number" }
+            }
+          },
+          definition: {
+            a: { type: "string" },
+          }
+        };
+
+        testJzodToTs(
+          "tsTypeGeneration-testJzodSchema3 - reference.ts",
+          "tsTypeGeneration-testJzodSchema3.ts",
+          testJzodSchema3,
+          true,
+          "testJzodSchema3"
+        );
+
+        // ########################################################################################
         const testJzodSchema4: any /**JzodElement*/ = 
         {
           type: "schemaReference", 

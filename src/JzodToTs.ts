@@ -4,7 +4,7 @@ import { GetType, createTypeAlias, printNode, withGetType, zodToTs } from "zod-t
 
 import { jzodElementSchemaToZodSchemaAndDescription } from "@miroir-framework/jzod";
 
-import { JzodElement } from "./generated_jzodBootstrapElementSchema";
+// import { JzodElement } from "./generated_jzodBootstrapElementSchema";
 
 import { printTsTypeAliases } from "./tools";
 
@@ -23,7 +23,7 @@ export interface TsTypeAliasesAndZodText {
 
 // ################################################################################################
 export function jzodToTsTypeAliasesAndZodText(
-  element: JzodElement,
+  element: any, // to avoid circularity on JzodElement
   typeName?: string,
 ): TsTypeAliasesAndZodText
 {
@@ -65,14 +65,14 @@ export function jzodToTsTypeAliasesAndZodText(
 
 // ################################################################################################
 export function jzodToTsCode (
-  jzodElement: JzodElement,
+  jzodElement: any, // to avoid circulatity on JzodElement
   exportPrefix: boolean = true,
   typeName?: string,
-  // typeSchema: boolean = false,
   typeAnotationForSchema: string[] = [],
 ): string {
   // console.log(
-  //   "################################### jzodToTsCode ",
+  //   "################################### jzodToTsCode typeName",
+  //   typeName,
   //   "jzodElement",
   //   JSON.stringify(jzodElement, null, 2)
   // );
