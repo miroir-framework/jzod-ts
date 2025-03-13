@@ -10,7 +10,7 @@ export function generateZodSchemaFileFromJzodSchema(
 ) {
   // console.log("generateZodSchemaFileFromJzodSchema called!");
  
-  const newFileContentsNotFormated = jzodToTsCode(jzodElement, true, jzodSchemaVariableName,Object.keys(jzodElement.context))
+  const newFileContentsNotFormated = jzodToTsCode(jzodElement, {}, true, jzodSchemaVariableName,Object.keys(jzodElement.context))
   // const newFileContents = `import { JzodObject, jzodObject } from "@miroir-framework/jzod-ts";
   const newFileContents = `${newFileContentsNotFormated}
 `;

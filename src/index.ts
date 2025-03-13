@@ -1,10 +1,13 @@
 export {
+  jzodToTsCodeInParallel,
+  jzodToTsTypeStringAndZodTextInParallel,
   jzodToTsCode,
   jzodToTsTypeAliasesAndZodText,
   TsTypeAliasesAndZodText as JzodTypeAliasesAndZodText,
   TsTypeAliases,
-} from "./JzodToTs";
-export { printTsTypeAlias, printTsTypeAliases } from "./tools";
+  jzodElementToZodTextAndZodSchemaForTsGeneration,
+} from "./JzodToTs.js";
+export { printTsTypeAlias, printTsTypeAliases } from "./tools.js";
 
 export {
   // SCHEMAS (const)
@@ -57,4 +60,4 @@ export {
   JzodSet,
   JzodUnion,
   JzodTuple,
-} from "./generated_jzodBootstrapElementSchema";
+} from "./generated_jzodBootstrapElementSchema.js";

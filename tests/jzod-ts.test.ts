@@ -1,11 +1,11 @@
-import * as fs from "fs";
-import * as path from "path";
-
 import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
+// import { jzodToTsCode } from "../src/JzodToTs";
 import { jzodToTsCode } from "../src/JzodToTs";
+import path from "path";
+import { readFileSync, writeFileSync } from "fs";
 
+const tmpPath = "./tmp/tests";
 const refsPath = "./tests/resources"
-const tmpPath = "./tests/tmp";
 
 
 const testJzodToTs = (
@@ -21,13 +21,14 @@ const testJzodToTs = (
   const testResultSchemaFilePath = path.join(tmpPath,testFileName);
   const expectedSchemaFilePath = path.join(refsPath,referenceFileName);
 
-  const result = jzodToTsCode(testJzodSchema,exportPrefix,typeName)
-  fs.writeFileSync(testResultSchemaFilePath,result);
+  const result = jzodToTsCode(testJzodSchema,{}, exportPrefix,typeName)
+  writeFileSync(testResultSchemaFilePath,result);
 
   const resultContents = result.replace(/(\r\n|\n|\r)/gm, "");
   // console.log("ts Type generation resultContents", resultContents);
 
-  const expectedFileContents = fs.readFileSync(expectedSchemaFilePath).toString().replace(/(\r\n|\n|\r)/gm, "")
+  const expectedFileContents = readFileSync(expectedSchemaFilePath).toString().replace(/(\r\n|\n|\r)/gm, "")
+  console.log("testJzodToTs running for:", typeName);
   expect(resultContents).toEqual(expectedFileContents);
 }
 

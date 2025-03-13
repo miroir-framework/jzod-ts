@@ -1,7 +1,7 @@
 import { printNode } from "zod-to-ts";
 import ts from "typescript";
 
-import { TsTypeAliases } from "./JzodToTs";
+import { TsTypeAliases } from "./JzodToTs.js";
 
 // ################################################################################################
 export function printTsTypeAlias(

@@ -5,7 +5,7 @@ const esModules = ['uuid'].join('|');
 
 export default (path, options) =>({
   "verbose": true,
-  "rootDir": ".",
+  "rootDir": "./tests",
   "moduleDirectories": [
     "node_modules",
   ],
@@ -14,14 +14,12 @@ export default (path, options) =>({
   modulePaths: ["./src/"], // <-- This will be set to 'baseUrl' value
   // modulePaths: [compilerOptions.baseUrl], // <-- This will be set to 'baseUrl' value
   moduleNameMapper: 
-    // Object.assign(
-      {
+    {
       // "^miroir-fwk(.*)$": "<rootDir>/src/$1",
       // "^(.*)$": "$1",
       '\\.(css|scss|sass)$': 'identity-obj-proxy',
-      }
-    // pathsToModuleNameMapper(compilerOptions.paths /*, { prefix: '<rootDir>/' } */)
-    // )
+      // '^punycode$': 'punycode/punycode.js',
+    }
   ,
   // resolver:options.defaultResolver(path, {...options}),
   testEnvironment: "node",
@@ -30,10 +28,10 @@ export default (path, options) =>({
   ],
   // preset:'ts-jest/presets/default-esm',
   "transform": {
-    "^.+\\.tsx?$": [
+    "^.+\\.ts$": [
       "ts-jest",
       {
-        // useESM:true,
+        useESM: true,
         // tsconfig: "../../tsconfig.json"
         tsconfig: 
         {
@@ -42,15 +40,13 @@ export default (path, options) =>({
           allowSyntheticDefaultImports:true,
           allowJs: true,
           moduleResolution: "node",
-          // module:"commonjs"
           module: "ESNext",
-          target: "ES2017",
-          // rootDir: "./src/",
+          target: "ESNext",
           traceResolution: true,
         },
       }
     ],
-    "^.+\\.js?$": ["babel-jest"],
+    // "^.+\\.js?$": ["babel-jest"],
   },
   // moduleNameMapper: {
   //   "^miroir-fwk\/(.+)$": "<rootDir>/src/$1",

@@ -4,6 +4,7 @@ module.exports = api => {
   console.log('########################################################')
   return {
   presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
+  // presets: [['@babel/preset-env', {targets: {node: 'next'}}]],
   "env": {
       "test": {
         "plugins": ["@babel/plugin-transform-modules-commonjs"]
