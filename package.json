@@ -48,23 +48,5 @@
     "vite-plugin-node-polyfills": "^0.23.0",
     "vitest": "^3.0.8",
     "zod-to-json-schema": "^3.21.2"
-  },
-  "tsup": {
-    "dts": true,
-    "clean": true,
-    "bundle": true,
-    "treeshake": true,
-    "target": "esNext",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "strict": true,
-    "format": [
-      "esm"
-    ],
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "entry": [
-      "src/index.ts"
-    ]
   }
 }

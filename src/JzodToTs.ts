@@ -79,7 +79,8 @@ export let getReferences: (() => ZodSchemaAndDescriptionRecord) | undefined = un
 
 // ######################################################################################################
 export async function jzodElementSchemaToZodTextAndTsTextInParallel(
-  element: JzodElement,
+  // element: JzodElement,
+  element: any,
   carryOn: ZodTextAndZodSchema | undefined,
   getSchemaEagerReferences: () => ZodSchemaAndDescriptionRecord = () => ({}),
   getLazyReferences: () => ZodSchemaAndDescriptionRecord = () => ({}),
@@ -111,7 +112,7 @@ export async function jzodElementSchemaToZodTextAndTsTextInParallel(
         if (!typeScriptGeneration?.typeName) {
           throw new Error("typeName must be defined in typeScriptGeneration when generating TypeScript: " + JSON.stringify(typeScriptGeneration));
         }
-        const context = Object.fromEntries(Object.entries(getSchemaEagerReferences()).map(e => [e[0], e[1].zodSchema]));
+        const context = Object.fromEntries(Object.entries(getSchemaEagerReferences()).map(e => [e[0], (e[1] as any).zodSchema]));
         const tsTypeText = zodSchemaToTsTypeString(zodSchema, context, typeScriptGeneration.typeName);
         const result:ZodTextAndTsTypeText = {
           contextZodText: undefined,
