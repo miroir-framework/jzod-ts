@@ -1,5 +1,6 @@
 import { ZodType, ZodTypeAny, z } from "zod";
 
+
 export type JzodBaseObject = {
     optional?: boolean | undefined;
     nullable?: boolean | undefined;

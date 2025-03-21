@@ -1,15 +1,14 @@
-import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
-// import { jzodToTsCode } from "../src/JzodToTs";
-import { jzodToTsCode } from "../src/JzodToTs";
 import path from "path";
 import { readFileSync, writeFileSync } from "fs";
 
-const tmpPath = "./tmp/tests";
+import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
+import { jzodToTsCode } from "../src/JzodToTs";
+
+const tmpPath = "./tests/tmp";
 const refsPath = "./tests/resources"
 
 
 const testJzodToTs = (
-  // testDirectory: string,
   referenceFileName: string,
   testFileName: string,
   testJzodSchema: any, //JzodElement,
@@ -37,10 +36,8 @@ describe(
   'Jzod-Ts',
   () => {
     // ############################################################################################
-    it(
-      "Jzod to TS Type",
+    it("Jzod to TS Type",
       async() => {
-
 
         // ########################################################################################
         const testJzodSchema1: any /**JzodElement*/ = { type: "string" };

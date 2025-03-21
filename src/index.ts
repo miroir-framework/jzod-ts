@@ -3,11 +3,8 @@ export {
   jzodToTsTypeStringAndZodTextInParallel,
   jzodToTsCode,
   jzodToTsTypeAliasesAndZodText,
-  TsTypeAliasesAndZodText as JzodTypeAliasesAndZodText,
-  TsTypeAliases,
   jzodElementToZodTextAndZodSchemaForTsGeneration,
 } from "./JzodToTs.js";
-export { printTsTypeAlias, printTsTypeAliases } from "./tools.js";
 
 export {
   // SCHEMAS (const)

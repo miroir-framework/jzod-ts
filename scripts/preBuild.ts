@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { jzodBootstrapElementSchema } from '@miroir-framework/jzod';
 
-import { jzodToTsCode } from './JzodToTs.js';
+import { jzodToTsCode } from '../src/JzodToTs.js';
 
 export function generateZodSchemaFileFromJzodSchema(
   jzodElement: any, //JzodElement,
@@ -11,7 +11,6 @@ export function generateZodSchemaFileFromJzodSchema(
   // console.log("generateZodSchemaFileFromJzodSchema called!");
  
   const newFileContentsNotFormated = jzodToTsCode(jzodElement, {}, true, jzodSchemaVariableName,Object.keys(jzodElement.context))
-  // const newFileContents = `import { JzodObject, jzodObject } from "@miroir-framework/jzod-ts";
   const newFileContents = `${newFileContentsNotFormated}
 `;
 
