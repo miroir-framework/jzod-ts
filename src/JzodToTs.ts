@@ -1,20 +1,13 @@
 import ts from "typescript";
-import { z, ZodTypeAny } from "zod";
-import { GetType, createTypeAlias, printNode, withGetType, zodToTs } from "zod-to-ts";
-import { pool } from "workerpool";
+import { ZodTypeAny } from "zod";
+import { createTypeAlias, printNode, zodToTs } from "zod-to-ts";
 
 import {
-  jzodElementSchemaToZodSchemaAndDescription,
-  jzodElementSchemaToZodSchemaAndDescriptionWithCarryOn,
-  TsTypeString,
-  TypeScriptGenerationParams,
-  ZodSchemaAndDescriptionRecord,
-  ZodSchemaToTsTypeStringFunction,
-  ZodTextAndTsTypeText,
+  jzodToZodTextAndZodSchema,
   ZodTextAndZodSchema,
+  ZodTextAndZodSchemaRecord,
 } from "@miroir-framework/jzod";
 
-import { JzodElement, JzodReference } from "./generated_jzodBootstrapElementSchema.js";
 
 // ################################################################################################
 export type TsTypeAliases =  {
@@ -26,16 +19,34 @@ export interface TsTypeAliasesAndZodText {
   contextTsTypeAliases: { [k: string]: ts.TypeAliasDeclaration },
   contextZodText: { [k: string]: string },
   mainTsTypeAlias: ts.TypeAliasDeclaration,
-  mainZodText: string 
+  zodText: string 
 }
 
 // ################################################################################################
+// ##############################################################################################################
 export interface ZodText {
   contextZodText: { [k: string]: string },
-  mainZodText: string 
+  zodText: string 
 }
 
-export interface TsTypeStringAndZodText extends ZodText, TsTypeString {}
+export interface TsTypeText {
+  contextTsTypeText: { [k: string]: string },
+  tsTypeText: string,
+}
+
+export interface ZodTextAndTsTypeText extends ZodText, TsTypeText {
+};
+
+
+// export interface ZodTextAndTsTypeText extends ZodText, TsTypeText {}
+
+export type ZodSchemaToTsTypeStringFunction = (
+  zodSchema: ZodTypeAny,
+  contextZodSchema: Record<string,ZodTypeAny>,
+  typeName?: string,
+) => TsTypeText;
+
+
 
 // ################################################################################################
 export function printTsTypeAlias(
@@ -59,340 +70,76 @@ ${printTsTypeAlias(curr[1],exportPrefix)}`;
 }
 
 // ################################################################################################
-export function jzodElementToZodTextAndZodSchemaForTsGeneration(
+export function jzodToZodTextAndZodSchemaForTsGeneration(
   element: any, // to avoid circularity on JzodElement
-  context: ZodSchemaAndDescriptionRecord = {},
+  context: ZodTextAndZodSchemaRecord = {},
 ): ZodTextAndZodSchema {
   const contextFunction = () => context;
-  const elementZodSchemaAndDescription: ZodTextAndZodSchema = jzodElementSchemaToZodSchemaAndDescription(
+  const elementZodSchemaAndDescription: ZodTextAndZodSchema = jzodToZodTextAndZodSchema(
     element as any,
     contextFunction,
     contextFunction,
-    {
-      typeScriptLazyReferenceConverter: (innerReference: ZodTypeAny & GetType, relativeReference: string | undefined) =>
-        withGetType(innerReference, (ts: any) => {
-          const actualTypeName = relativeReference
-            ? relativeReference.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)
-            : "";
-          return ts.factory.createTypeReferenceNode(
-            ts.factory.createIdentifier(actualTypeName ?? "RELATIVEPATH_NOT_DEFINED"),
-            undefined
-          );
-        }),
-      returnTypeScript: true,
-    }
+    true, // typeScriptGeneration
   );
   return elementZodSchemaAndDescription;
 }
 
-let globalReferences: ZodSchemaAndDescriptionRecord | undefined = undefined;
-
-export function getGlobalReferences () { return globalReferences };
-
-// ######################################################################################################
-export async function jzodElementSchemaToZodTextAndTsTextInParallel(
-  // element: JzodElement,
-  typeName: string,
-  element: any,
-  carryOn: ZodTextAndZodSchema | undefined,
-  getSchemaEagerReferences: () => ZodSchemaAndDescriptionRecord = () => ({}),
-  getLazyReferences: () => ZodSchemaAndDescriptionRecord = () => ({}),
-  exendedJzodSchemaContext: Record<string, JzodElement>,
-  zodSchemaToTsTypeString: ZodSchemaToTsTypeStringFunction,
-  typeScriptGeneration?: TypeScriptGenerationParams,
-  nonExtendedJzodSchemaContext: ZodSchemaAndDescriptionRecord = {},
-): Promise<ZodTextAndTsTypeText> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      if ((element as any)?.carryOn && !!carryOn) {
-        throw new Error(
-          "jzodElementSchemaToZodSchemaAndDecritpionWithCarryOn carryOn override is not allowed, at most 1 carryOn clause can be specified in any jzod schema tree."
-        );
-      }
-    
-      if (!!carryOn && !["object", "schemaReference", "union"].includes(element.type)) { // only object, schemaReference and union can have a carryOn
-        // if there is a carryOn and current element can not have a carryOn, then return the union of the current element and the carryOn
-        const plainZodSchema = jzodElementToZodTextAndZodSchemaForTsGeneration(
-          element,
-          getSchemaEagerReferences(),
-        );
-        const zodSchema = z.union([plainZodSchema.zodSchema, carryOn.zodSchema]);
-        const zodText = `z.union([${plainZodSchema.zodText}, ${carryOn.zodText}])`;
-        
-        if (!typeScriptGeneration?.typeName) {
-          throw new Error("typeName must be defined in typeScriptGeneration when generating TypeScript: " + JSON.stringify(typeScriptGeneration));
-        }
-        const context = Object.fromEntries(Object.entries(getSchemaEagerReferences()).map(e => [e[0], (e[1] as any).zodSchema]));
-        const tsTypeText = zodSchemaToTsTypeString(zodSchema, context, typeScriptGeneration.typeName);
-        const result:ZodTextAndTsTypeText = {
-          contextZodText: undefined,
-          contextTsTypeText: tsTypeText.contextTsTypeStrings,
-          tsTypeText: tsTypeText.mainTsTypeString,
-          zodText,
-        };
-        resolve(result);
-      }
-      switch (element.type) {
-        case "schemaReference": {
-          if (typeScriptGeneration?.returnTypeScript) {
-            // spawn a call to jzodElementSchemaToZodSchemaAndDescriptionWithCarryOn (via the Worker) for each context entry
-            // only serializable data can be passed to the worker,
-            if (
-              !typeScriptGeneration.poolsize ||
-              !typeScriptGeneration.typeName ||
-              !typeScriptGeneration.exportPrefix
-            ) {
-              throw new Error(
-                "poolsize, typename, exportPrefix must be defined in typeScriptGeneration when generating TypeScript: " +
-                  JSON.stringify(typeScriptGeneration)
-              );
-            }
-            const entries:[string, JzodElement][] = Object.entries((element as JzodReference).context ?? {});
-            // console.log("jzodElementSchemaToZodTextAndTsTextInParallel using zodSchemaToTsTypeString in worker pool:", zodSchemaToTsTypeString.toString());
-            const workerFileName = __dirname + '/src/worker.js'
-            console.log("jzodElementSchemaToZodTextAndTsTextInParallel creating worker pool", workerFileName);
-            const workerPool = pool(workerFileName)
-            const segments = typeScriptGeneration.poolsize;
-            const chunkSize = Math.ceil(entries.length / segments);
-            const slices = Array.from({ length: segments }, (_, i) =>
-              entries.slice(i * chunkSize, (i + 1) * chunkSize)
-            );
-
-            let workerPoolResults: [string, TsTypeStringAndZodText][][] = [];
-            const poolCalls = await Promise.all(
-              slices.map((slice) =>
-              workerPool
-                .proxy()
-                .then((worker: any) =>
-                  worker.handleJzodElementToTsTypeMessage(slice, exendedJzodSchemaContext)
-                )
-              )
-            )
-            .then((results) => {
-              workerPoolResults = results;
-            })
-            .catch((err) => {
-            console.error(err);
-            })
-            .finally(() => {
-            workerPool.terminate();
-            });
-            const flatResults: [string, TsTypeStringAndZodText][] = workerPoolResults.flat();
-            const result: ZodTextAndTsTypeText = {
-              contextTsTypeText: flatResults.reduce(
-                (acc, curr: [string, TsTypeStringAndZodText]) => ({
-                  ...acc,
-                  [curr[0]]: curr[1].mainTsTypeString,
-                }),
-                {}
-              ),
-              zodText: element.definition.relativePath,
-              tsTypeText: element.definition.relativePath,
-              contextZodText: flatResults.reduce(
-                (acc, curr: [string, TsTypeStringAndZodText]) => ({
-                  ...acc,
-                  [curr[0]]: curr[1].mainZodText,
-                }),
-                {}
-              ),
-              objectShapeZodText: {
-                "objectShapeZodText not defined": "objectShapeZodText not defined",
-              },
-            };
-            resolve(result);
-          } else {
-            throw new Error("schemaReference is not supported in non-TypeScript generation mode");
-          }
-          break;
-        }
-        case "string":
-        case "number":
-        case "bigint":
-        case "boolean":
-        case "undefined":
-        case "object":
-        case "function":
-        case "array":
-        case "any":
-        case "date":
-        case "never":
-        case "null":
-        case "uuid":
-        case "unknown":
-        case "void":
-        case "enum":
-        case "lazy":
-        case "literal":
-        case "intersection":
-        case "map":
-        case "promise":
-        case "record":
-        case "set":
-        case "tuple":
-        case "union":
-        default: {
-          const preResult = jzodToTsTypeStringAndZodText(
-            element,
-            getSchemaEagerReferences(),
-            typeName
-          );
-          const result: ZodTextAndTsTypeText = {
-            contextTsTypeText: preResult.contextTsTypeStrings,
-            contextZodText: preResult.contextZodText,
-            zodText: preResult.mainZodText,
-            tsTypeText: preResult.mainTsTypeString,
-          };
-          resolve(result);
-          break;
-        }
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
 
 // ################################################################################################
-export async function jzodToTsTypeStringAndZodTextInParallel(
+export function jzodToZodTextAndTsTypeText(
   element: any, // to avoid circularity on JzodElement
-  context: ZodSchemaAndDescriptionRecord = {},
-  exendedJzodSchemaContext: Record<string, JzodElement>,
-  typeName: string,
-  poolsize: number,
-  exportPrefix: boolean,
-): Promise<ZodTextAndTsTypeText> {
-  const contextFunction = () => context;
-  const elementZodSchemaAndDescription: ZodTextAndTsTypeText = await jzodElementSchemaToZodTextAndTsTextInParallel(
-    typeName,
-    element as any,
-    undefined, // carryOn
-    contextFunction,
-    contextFunction,
-    exendedJzodSchemaContext,
-    zodSchemaToTsTypeString,
-    {
-      typeScriptLazyReferenceConverter: (innerReference: ZodTypeAny & GetType, relativeReference: string | undefined) =>
-        withGetType(innerReference, (ts: any) => {
-          const actualTypeName = relativeReference
-            ? relativeReference.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)
-            : "";
-          return ts.factory.createTypeReferenceNode(
-            ts.factory.createIdentifier(actualTypeName ?? "RELATIVEPATH_NOT_DEFINED"),
-            undefined
-          );
-        }),
-      returnTypeScript: true,
-      poolsize,
-      typeName,
-      exportPrefix
-    }
-  );
-  return elementZodSchemaAndDescription;
-}
-
-// ################################################################################################
-// NOT USED FOR NOW
-export function jzodToTsTypeStringAndZodText(
-  element: any, // to avoid circularity on JzodElement
-  context: ZodSchemaAndDescriptionRecord = {},
+  context: ZodTextAndZodSchemaRecord = {},
   typeName?: string,
-): TsTypeStringAndZodText {
-  // console.log("jzodToTsTypeStringAndZodText running for", typeName);
-  const elementZodSchemaAndDescription: ZodTextAndZodSchema = jzodElementToZodTextAndZodSchemaForTsGeneration(
+): ZodTextAndTsTypeText {
+  // console.log("jzodToZodTextAndTsTypeText running for", typeName);
+  const elementZodSchemaAndDescription: ZodTextAndZodSchema = jzodToZodTextAndZodSchemaForTsGeneration(
     element,
     context,
   );
-  const contextTsTypesStringStartTime = Date.now();
-
+  // console.log("jzodToZodTextAndTsTypeText found elementZodSchemaAndDescription.contextZodText",JSON.stringify(elementZodSchemaAndDescription.contextZodText,null,2));
   const contextTsTypesStringObject = Object.fromEntries(
     Object.entries(elementZodSchemaAndDescription.contextZodSchema ?? {}).map((curr) => {
       const actualTypeName = curr[0]?curr[0].replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-      console.log("jzodToTsTypeStringAndZodText producing TS type for contextElement", curr[0], "actualTypeName", actualTypeName);
       const tsNode = zodToTs(curr[1], typeName).node;
       const typeAlias = createTypeAlias(tsNode, actualTypeName);
       const tsTypeString = printNode(typeAlias);
+      // console.log("jzodToZodTextAndTsTypeText producing TS type for contextElement", curr[0], tsTypeString);
+      console.log("jzodToZodTextAndTsTypeText producing TS type for contextElement", curr[0]);
       return [curr[0], tsTypeString];
     })
   );
   
-  const tsTypeStringNodeStartTime = Date.now();
+  // const tsTypeStringNodeStartTime = Date.now();
   const actualTypeName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
   const tsTypeStringNode = zodToTs(elementZodSchemaAndDescription.zodSchema, typeName).node;
   const tsTypeAlias = createTypeAlias(tsTypeStringNode, actualTypeName);
   const tsTypeString = printNode(tsTypeAlias);
 
   return {
-    contextTsTypeStrings: contextTsTypesStringObject,
+    contextTsTypeText: contextTsTypesStringObject,
     contextZodText: elementZodSchemaAndDescription.contextZodText ?? {},
-    mainZodText: elementZodSchemaAndDescription.zodText,
-    mainTsTypeString: tsTypeString,
+    zodText: elementZodSchemaAndDescription.zodText,
+    tsTypeText: tsTypeString,
   }
 }
 
-// ################################################################################################
-export function zodSchemaToTsTypeString(
-  zodSchema: ZodTypeAny,
-  contextZodSchema: Record<string,ZodTypeAny> = {},
-  typeName?: string,
-): TsTypeString {
-  const jzodToTsTypeAliasesAndZodTextStartTime = Date.now();
-  console.log("@@@@@@@@@@@@@@@@@ zodSchemaToTsTypeStringAndZodText start!");
-
-  console.log(
-    "zodSchemaToTsTypeStringAndZodText jzodElementToZodTextAndZodSchemaForTsGeneration duration",
-    Date.now() - jzodToTsTypeAliasesAndZodTextStartTime, "ms"
-  );
-
-  const contextTsTypesStringStartTime = Date.now();
-
-  const contextTsTypesStringObject = Object.fromEntries(
-    Object.entries(contextZodSchema ?? {}).map((curr) => {
-      console.log("zodSchemaToTsTypeStringAndZodText converting context entry", curr[0]);
-      const actualTypeName = curr[0]?curr[0].replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-      const tsNode = zodToTs(curr[1], typeName).node;
-      const typeAlias = createTypeAlias(tsNode, actualTypeName);
-      const tsTypeString = printNode(typeAlias);
-      return [curr[0], tsTypeString];
-    })
-  );
-  
-  console.log(
-    "zodSchemaToTsTypeStringAndZodText contextTsTypesString duration",
-    Date.now() - contextTsTypesStringStartTime, "ms"
-  );
-  const tsTypeStringNodeStartTime = Date.now();
-  const actualTypeName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-  const tsTypeStringNode = zodToTs(zodSchema, typeName).node;
-  const tsTypeAlias = createTypeAlias(tsTypeStringNode, actualTypeName);
-  const tsTypeString = printNode(tsTypeAlias);
-  console.log(
-    "zodSchemaToTsTypeStringAndZodText tsTypeStringNode duration",
-    Date.now() - tsTypeStringNodeStartTime, "ms"
-  );
-
-  console.log("@@@@@@@@@@@@@@@@@ zodSchemaToTsTypeStringAndZodText end in:", Date.now() - jzodToTsTypeAliasesAndZodTextStartTime, "ms");
-  return {
-    contextTsTypeStrings: contextTsTypesStringObject,
-    mainTsTypeString: tsTypeString,
-  }
-}
 
 // ################################################################################################
-export function jzodToTsTypeAliasesAndZodText(
+export function jzodToZodTextAndTsTypeAliases(
   element: any, // to avoid circularity on JzodElement
-  context: ZodSchemaAndDescriptionRecord = {},
+  context: ZodTextAndZodSchemaRecord = {},
   typeName?: string,
 ): TsTypeAliasesAndZodText {
   const jzodToTsTypeAliasesAndZodTextStartTime = Date.now();
-  console.log("@@@@@@@@@@@@@@@@@ jzodToTsTypeAliasesAndZodText start!", Object.keys(context).length);
-  console.log("jzodToTsTypeAliasesAndZodText context:", JSON.stringify(Object.keys(context)));
-  const elementZodSchemaAndDescription: ZodTextAndZodSchema = jzodElementToZodTextAndZodSchemaForTsGeneration(
+  console.log("@@@@@@@@@@@@@@@@@ jzodToZodTextAndTsTypeAliases start!", Object.keys(context).length);
+  console.log("jzodToZodTextAndTsTypeAliases context:", JSON.stringify(Object.keys(context)));
+  const elementZodSchemaAndDescription: ZodTextAndZodSchema = jzodToZodTextAndZodSchemaForTsGeneration(
     element,
     context,
   );
 
   console.log(
-    "jzodToTsTypeAliasesAndZodText jzodElementToZodTextAndZodSchemaForTsGeneration duration",
+    "jzodToZodTextAndTsTypeAliases jzodToZodTextAndZodSchemaForTsGeneration duration",
     Date.now() - jzodToTsTypeAliasesAndZodTextStartTime, "ms"
   );
 
@@ -400,7 +147,7 @@ export function jzodToTsTypeAliasesAndZodText(
 
   const contextTsTypesString = Object.fromEntries(
     Object.entries(elementZodSchemaAndDescription.contextZodSchema ?? {}).map((curr) => {
-      console.log("jzodToTsTypeAliasesAndZodText converting elementZodSchemaAndDescription entry", curr[0]);
+      console.log("jzodToZodTextAndTsTypeAliases converting elementZodSchemaAndDescription entry", curr[0]);
       const actualTypeName = curr[0]?curr[0].replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
       const tsNode = zodToTs(curr[1], typeName).node;
       const typeAlias = createTypeAlias(tsNode, actualTypeName);
@@ -409,38 +156,46 @@ export function jzodToTsTypeAliasesAndZodText(
   );
   
   console.log(
-    "jzodToTsTypeAliasesAndZodText contextTsTypesString duration",
+    "jzodToZodTextAndTsTypeAliases contextTsTypesString duration",
     Date.now() - contextTsTypesStringStartTime, "ms"
   );
   const tsTypeStringNodeStartTime = Date.now();
   const tsTypeStringNode = zodToTs(elementZodSchemaAndDescription.zodSchema, typeName).node;
   const tsTypeStringTypeAlias = createTypeAlias(tsTypeStringNode, typeName ?? "");
   console.log(
-    "jzodToTsTypeAliasesAndZodText tsTypeStringNode duration",
+    "jzodToZodTextAndTsTypeAliases tsTypeStringNode duration",
     Date.now() - tsTypeStringNodeStartTime, "ms"
   );
 
-  console.log("@@@@@@@@@@@@@@@@@ jzodToTsTypeAliasesAndZodText end in:", Date.now() - jzodToTsTypeAliasesAndZodTextStartTime, "ms");
+  console.log("@@@@@@@@@@@@@@@@@ jzodToZodTextAndTsTypeAliases end in:", Date.now() - jzodToTsTypeAliasesAndZodTextStartTime, "ms");
   return {
     contextTsTypeAliases: contextTsTypesString,
     contextZodText: elementZodSchemaAndDescription.contextZodText ?? {},
-    mainZodText: elementZodSchemaAndDescription.zodText,
+    zodText: elementZodSchemaAndDescription.zodText,
     mainTsTypeAlias: tsTypeStringTypeAlias,
   };
 }
 
 
 // ################################################################################################
-// export async function jzodToTsCode (
-export function jzodToTsCode (
+/**
+ * 
+ * @param typeName the name given to the resulting TS type definition
+ * @param jzodElement the JzodElement to convert to TS code
+ * @param context the context of the JzodElement, to be used for recursive types, for example.
+ * @param exportPrefix true if the resulting TS code should be prefixed with "export "
+ * @param typeAnotationForSchema adds a type annotation for the resulting TS type definition, in the form of ZodType<typeName>. This is useful for the linter, to precisely define the type, instead of relying on potentially coarser type inference mechanism. Recursive types cannot use this feature.
+ * @param extendedTsTypesText a string containing additional TS types to be included in the resulting TS code, for example, types that are used in the context of the JzodElement, but are not defined in the JzodElement itself.
+ * @returns a string containing the resulting TS code
+ */
+export function jzodToTsCode(
+  typeName: string,
   jzodElement: any, // to avoid circulatity on JzodElement
-  context: ZodSchemaAndDescriptionRecord = {},
+  context: ZodTextAndZodSchemaRecord = {},
   exportPrefix: boolean = true,
-  typeName?: string,
+  headerForZodImports: boolean = true,
   typeAnotationForSchema: string[] = [],
-  includeHeader: boolean = true,
-  includeBody: boolean = true,
-  importContextFilePath?: string | undefined,
+  extendedTsTypesText: string = "",
 ): string {
   // console.log(
   //   "################################### jzodToTsCode typeName",
@@ -448,137 +203,59 @@ export function jzodToTsCode (
   //   "jzodElement",
   //   JSON.stringify(jzodElement, null, 2)
   // );
-  
-  const schemaName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toLowerCase() + c):"";
-  const actualTypeName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
+
+  const schemaName = typeName
+    ? typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toLowerCase() + c)
+    : "";
+  const actualTypeName = typeName
+    ? typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)
+    : "";
 
   // console.log("jzodToTsCode typeAnotationForSchema", typeAnotationForSchema);
 
-  const header = includeHeader?`import { ZodType, ZodTypeAny, z } from "zod";`:"";
+  const header = headerForZodImports?`import { ZodType, ZodTypeAny, z } from "zod";`:"";
 
-  const imports = importContextFilePath?
-    "import { \n" + 
-    [
-      ...Object.keys(context),
-      ...Object.keys(context).map((e) => e.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)),
-    ]
-    .join(",\n") +
-    "\n } from \"" +
-    importContextFilePath + "\";"
-    :"";
+  const tsTypeStringsAndZodText = jzodToZodTextAndTsTypeText(jzodElement, context, actualTypeName);
 
-  const typeAliasesAndZodText = jzodToTsTypeAliasesAndZodText(
-    jzodElement,
-    context,
-    actualTypeName,
-  );
-
-  const bodyJsCode = includeBody?typeAnotationForSchema.includes(schemaName??"")
-    ? `export const ${schemaName}: z.ZodType<${actualTypeName}> = ${typeAliasesAndZodText.mainZodText};`
-    : `export const ${schemaName} = ${typeAliasesAndZodText.mainZodText};`
-    :"";
-
-  const contextTsTypesString = printTsTypeAliases(typeAliasesAndZodText.contextTsTypeAliases, exportPrefix);
-  // console.log("jzodToTsCode zod text for converted jzodElement",typeAliasesAndZodText.contextZodText);
-
-  const contextJsCode = typeAliasesAndZodText.contextZodText
-    ? Object.entries(typeAliasesAndZodText.contextZodText).reduce((acc, curr) => {
-      const contextTypeName = curr[0]?curr[0].replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-      return typeAnotationForSchema.includes(curr[0])?
-        `${acc}
-export const ${curr[0]}: z.ZodType<${contextTypeName}> = ${curr[1]};`
-      :
-        `${acc}
-export const ${curr[0]} = ${curr[1]};`
-      ;
-    }, "")
-    : ""
-  ;
-
-  const tsTypesString = (exportPrefix?"export ":"") + printNode(typeAliasesAndZodText.mainTsTypeAlias);
-  // console.log("getTsCodeCorrespondingToZodSchemaAndDescription tsTypeString",tsTypesString);
-
-  return `${header}
-${imports}
-${contextTsTypesString}
-${tsTypesString}
-${contextJsCode}
-${bodyJsCode}
-`;
-}
-
-// ################################################################################################
-export async function jzodToTsCodeInParallel (
-  jzodElement: any, // to avoid circulatity on JzodElement
-  context: ZodSchemaAndDescriptionRecord = {},
-  exendedJzodSchemaContext: Record<string, JzodElement>,
-  exportPrefix: boolean = true,
-  typeName?: string,
-  typeAnotationForSchema: string[] = [],
-  poolSize: number = 4,
-  extendedTsTypes?: string
-
-): Promise<string> {
-  // console.log(
-  //   "################################### jzodToTsCode typeName",
-  //   typeName,
-  //   "jzodElement",
-  //   JSON.stringify(jzodElement, null, 2)
-  // );
-  
-  const schemaName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toLowerCase() + c):"";
-  const actualTypeName = typeName?typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-
-  // console.log("jzodToTsCode typeAnotationForSchema", typeAnotationForSchema);
-
-  const header = `import { ZodType, ZodTypeAny, z } from "zod";`;
-
-  const tsTypeStringsAndZodText = await jzodToTsTypeStringAndZodTextInParallel(
-    jzodElement,
-    context,
-    exendedJzodSchemaContext,
-    actualTypeName,
-    poolSize,
-    exportPrefix
-  );
-
-  // console.log("jzod-ts jzodToTsCodeInParallel found tsTypeStringsAndZodText",tsTypeStringsAndZodText);
-  const bodyJsCode = typeAnotationForSchema.includes(schemaName??"")
-    ? `export const ${schemaName}: z.ZodType<${actualTypeName}> = ${tsTypeStringsAndZodText.zodText};`
-    : `export const ${schemaName} = ${tsTypeStringsAndZodText.zodText};`;
+  // console.log("jzod-ts jzodToTsCode found tsTypeStringsAndZodText",JSON.stringify(tsTypeStringsAndZodText,null,2));
 
   const contextTsTypesString = tsTypeStringsAndZodText.contextTsTypeText
     ? Object.entries(tsTypeStringsAndZodText.contextTsTypeText).reduce((acc, curr) => {
-      const contextTypeName = curr[0];
-      return exportPrefix?`${acc}
-export ${curr[1]};`
-: `${acc}
-${curr[1]};`
-      ;
-    }, "")
-    : ""
-  ;
-  // console.log("jzodToTsCode zod text for converted jzodElement",typeAliasesAndZodText.contextZodText);
+        return exportPrefix
+          ? `${acc}
+export ${curr[1]}`
+          : `${acc}
+${curr[1]}`;
+      }, "")
+    : "";
+  // console.log("jzodToTsCode context TS type string",contextTsTypesString);
 
   const contextJsCode = tsTypeStringsAndZodText.contextZodText
     ? Object.entries(tsTypeStringsAndZodText.contextZodText).reduce((acc, curr) => {
-      const contextTypeName = curr[0]?curr[0].replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c):"";
-      return typeAnotationForSchema.includes(curr[0])?
-        `${acc}
+        const contextTypeName = curr[0]
+          ? curr[0].replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)
+          : "";
+        return typeAnotationForSchema.includes(curr[0])
+          ? `${acc}
 export const ${curr[0]}: z.ZodType<${contextTypeName}> = ${curr[1]};`
-      :
-        `${acc}
-export const ${curr[0]} = ${curr[1]};`
-      ;
-    }, "")
-    : ""
-  ;
+          : `${acc}
+export const ${curr[0]} = ${curr[1]};`;
+      }, "")
+    : "";
+  // console.log("jzodToTsCode context JS code",contextJsCode);
+
+  const bodyTsCode = (exportPrefix ? "export " : "") + tsTypeStringsAndZodText.tsTypeText;
+
+  const bodyJsCode = typeAnotationForSchema.includes(schemaName ?? "")
+    ? `export const ${schemaName}: z.ZodType<${actualTypeName}> = ${tsTypeStringsAndZodText.zodText};`
+    : `export const ${schemaName} = ${tsTypeStringsAndZodText.zodText};`;
 
   // console.log("getTsCodeCorrespondingToZodSchemaAndDescription tsTypeString",tsTypesString);
 
   return `${header}
-${extendedTsTypes}
+${extendedTsTypesText ?? ""}
 ${contextTsTypesString}
+${bodyTsCode}
 ${contextJsCode}
 ${bodyJsCode}
 `;

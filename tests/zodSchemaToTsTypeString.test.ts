@@ -1,22 +1,23 @@
 import { describe, expect } from 'vitest';
 import { z, ZodTypeAny } from "zod";
+import { zodSchemaToTsTypeText } from '../src/ZodToTsTypeText';
 
-import { zodSchemaToTsTypeString } from "../src/JzodToTs";
+
 function performTest(testName: string |undefined,zodSchema:ZodTypeAny, expected:any) {
-  const result = zodSchemaToTsTypeString(zodSchema);
+  const result = zodSchemaToTsTypeText(zodSchema);
   console.log("result", JSON.stringify(result, null, 2));
   expect(result, testName??"No test name!").toEqual(expected);
 }
 
 describe(
-  "zodSchemaToTsTypeString",
+  "zodSchemaToTsTypeText",
   () => {
     it( "string",
       () => {
         const testZodSchema1: any /**ZodElement*/ = z.string();
         performTest(expect.getState().currentTestName,testZodSchema1,{
-            "contextTsTypeStrings": {},
-            "mainTsTypeString": "type  = string;",
+            "contextTsTypeText": {},
+            "tsTypeText": "type  = string;",
           }
         );
       }
@@ -31,10 +32,10 @@ describe(
             d: z.boolean(),
           }),
         });
-        // const result = zodSchemaToTsTypeString(testZodSchema2);
+        // const result = zodSchemaToTsTypeText(testZodSchema2);
         performTest(expect.getState().currentTestName, testZodSchema2, {
-          contextTsTypeStrings: {},
-          mainTsTypeString: `type  = {
+          contextTsTypeText: {},
+          tsTypeText: `type  = {
     a: string;
     b: {
         c: number;
@@ -49,8 +50,8 @@ describe(
       () => {
         const testZodSchema3: any /**ZodElement*/ = z.array(z.string());
         performTest(expect.getState().currentTestName, testZodSchema3, {
-          contextTsTypeStrings: {},
-          mainTsTypeString: "type  = string[];"
+          contextTsTypeText: {},
+          tsTypeText: "type  = string[];"
         });
       }
     )

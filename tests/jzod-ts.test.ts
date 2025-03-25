@@ -1,14 +1,14 @@
-import path from "path";
 import { readFileSync, writeFileSync } from "fs";
+import path from "path";
 
-import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
 import { jzodToTsCode } from "../src/JzodToTs";
+import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
 
 const tmpPath = "./tests/tmp";
 const refsPath = "./tests/resources"
 
 
-const testJzodToTs = (
+const testJzodToTs = async (
   referenceFileName: string,
   testFileName: string,
   testJzodSchema: any, //JzodElement,
@@ -20,7 +20,14 @@ const testJzodToTs = (
   const testResultSchemaFilePath = path.join(tmpPath,testFileName);
   const expectedSchemaFilePath = path.join(refsPath,referenceFileName);
 
-  const result = jzodToTsCode(testJzodSchema,{}, exportPrefix,typeName)
+  const result = await jzodToTsCode(
+    typeName,
+    testJzodSchema,
+    {},  // context
+    exportPrefix,
+  )
+  // console.log("ts Type generation result", result);
+
   writeFileSync(testResultSchemaFilePath,result);
 
   const resultContents = result.replace(/(\r\n|\n|\r)/gm, "");
@@ -42,11 +49,11 @@ describe(
         // ########################################################################################
         const testJzodSchema1: any /**JzodElement*/ = { type: "string" };
 
-        testJzodToTs(
+        await testJzodToTs(
           "tsTypeGeneration-testJzodSchema1 - reference.ts",
           "tsTypeGeneration-testJzodSchema1.ts",
           testJzodSchema1,
-          true,
+          true, // exportPrefix
           "testJzodSchema1"
         );
 
@@ -65,7 +72,7 @@ describe(
           definition: { relativePath: "b" },
         };
 
-        testJzodToTs(
+        await testJzodToTs(
           "tsTypeGeneration-testJzodSchema2 - reference.ts",
           "tsTypeGeneration-testJzodSchema2.ts",
           testJzodSchema2,
@@ -87,7 +94,7 @@ describe(
           }
         };
 
-        testJzodToTs(
+        await testJzodToTs(
           "tsTypeGeneration-testJzodSchema3 - reference.ts",
           "tsTypeGeneration-testJzodSchema3.ts",
           testJzodSchema3,
@@ -111,7 +118,7 @@ describe(
           },
         }
 
-        testJzodToTs(
+        await testJzodToTs(
           "tsTypeGeneration-testJzodSchema4 - reference.ts",
           "tsTypeGeneration-testJzodSchema4.ts",
           testJzodSchema4,

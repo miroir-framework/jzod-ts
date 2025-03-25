@@ -31,17 +31,13 @@
     "dist/src/worker.js"
   ],
   "scripts": {
-    "preBuild": "tsc --rootDir . --baseUrl . --module ESnext --target ESnext --moduleResolution node --allowSyntheticDefaultImports --outdir ./tmp/ && node ./tmp/src/preBuild.js",
-    "preBuildRun": "node ./tmp/src/preBuild.js",
-    "preBuildRun2": "tsx ./scripts/preBuild.js",
-    "buildWorker": "tsc ./src/worker.ts --rootDir . --baseUrl . --target ES6 --module es6 --moduleResolution node --strict --allowSyntheticDefaultImports --outdir ./dist/",
-    "build": "tsup && npm run buildWorker",
+    "preBuild": "tsx ./scripts/preBuild.ts",
+    "build": "tsup",
     "test": "cross-env NODE_ENV=test vitest run --poolOptions.threads.singleThread --passWithNoTests -t"
   },
   "dependencies": {
-    "@miroir-framework/jzod": "*",
-    "workerpool": "^9.2.0",
-    "zod": "^3.22.2",
+    "@miroir-framework/jzod": "0.8.1",
+    "zod": "^3.24.2",
     "zod-to-ts": "^1.2.0"
   },
   "devDependencies": {

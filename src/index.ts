@@ -1,9 +1,7 @@
 export {
-  jzodToTsCodeInParallel,
-  jzodToTsTypeStringAndZodTextInParallel,
   jzodToTsCode,
-  jzodToTsTypeAliasesAndZodText,
-  jzodElementToZodTextAndZodSchemaForTsGeneration,
+  jzodToZodTextAndTsTypeAliases,
+  jzodToZodTextAndZodSchemaForTsGeneration,
 } from "./JzodToTs.js";
 
 export {
