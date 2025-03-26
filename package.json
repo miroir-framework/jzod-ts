@@ -1,7 +1,7 @@
 {
   "name": "@miroir-framework/jzod-ts",
   "private": false,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "The Typescript-related functionalities of Jzod.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,25 +36,12 @@
     "test": "cross-env NODE_ENV=test vitest run --poolOptions.threads.singleThread --passWithNoTests -t"
   },
   "dependencies": {
-    "@miroir-framework/jzod": "0.8.1",
+    "@miroir-framework/jzod": "*",
     "zod": "^3.24.2",
     "zod-to-ts": "^1.2.0"
   },
   "devDependencies": {
-    "@babel/parser": "^7.26.10",
-    "@babel/plugin-transform-modules-commonjs": "^7.20.11",
-    "@babel/preset-env": "^7.22.5",
-    "@babel/types": "^7.26.10",
-    "@jest/globals": "^29.3.1",
-    "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-json": "^6.0.0",
-    "@types/jest": "^29.2.4",
-    "babel-jest": "^29.4.0",
     "path": "^0.12.7",
-    "rollup": "^3.10.1",
-    "rollup-plugin-dts": "^5.1.1",
-    "rollup-plugin-typescript2": "^0.34.1",
-    "ts-jest": "^29.0.3",
     "tsconfig-paths": "^4.1.2",
     "tsup": "^8.4.0",
     "tsx": "^4.19.3",
