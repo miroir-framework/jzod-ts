@@ -49,17 +49,17 @@ const jzodSchemaConversion
   },
 ];
 
-console.info("Prebuild!");
+console.log("Prebuild!");
 
 try {
   for (const schema of jzodSchemaConversion) {
     generateZodSchemaFileFromJzodSchema(schema.jzodElement,schema.targetFileName,schema.jzodSchemaVariableName)
-    console.info("GENERATING",jzodBootstrapElementSchema);
-    console.info("GENERATED",schema.targetFileName);
+    console.log("GENERATING",jzodBootstrapElementSchema);
+    console.log("GENERATED",schema.targetFileName);
   }
 
 } catch (error) {
   console.error("could not generate TS files from Jzod schemas", error);
 }
 
-console.info("Prebuild end!");
+console.log("Prebuild end!");

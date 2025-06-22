@@ -1,5 +1,6 @@
 import { ZodType, ZodTypeAny, z } from "zod";
 
+
 export type JzodBaseObject = {
     optional?: boolean | undefined;
     nullable?: boolean | undefined;
@@ -351,6 +352,7 @@ export type JzodUnion = {
         optional?: boolean | undefined;
     } | undefined;
     type: "union";
+    optInDiscriminator?: boolean | undefined;
     discriminator?: ({
         discriminatorType: "string";
         value: string;
@@ -388,6 +390,6 @@ export const jzodRecord = z.object({optional:z.boolean().optional(), nullable:z.
 export const jzodReference = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.any().optional(), tag:z.object({value:z.any(), schema:z.object({optional:z.boolean().optional(), metaSchema:z.lazy(() =>jzodElement).optional(), valueSchema:z.lazy(() =>jzodElement).optional()}).strict().optional(), optional:z.boolean().optional()}).strict().optional(), type:z.literal("schemaReference"), context:z.record(z.string(),z.lazy(() =>jzodElement)).optional(), carryOn:z.union([z.lazy(() =>jzodObject), z.lazy(() =>jzodUnion)]).optional(), definition:z.object({eager:z.boolean().optional(), partial:z.boolean().optional(), relativePath:z.string().optional(), absolutePath:z.string().optional()}).strict()}).strict();
 export const jzodSet = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.any().optional(), tag:z.object({value:z.any(), schema:z.object({optional:z.boolean().optional(), metaSchema:z.lazy(() =>jzodElement).optional(), valueSchema:z.lazy(() =>jzodElement).optional()}).strict().optional(), optional:z.boolean().optional()}).strict().optional(), type:z.literal("set"), definition:z.lazy(() =>jzodElement)}).strict();
 export const jzodTuple = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.any().optional(), tag:z.object({value:z.any(), schema:z.object({optional:z.boolean().optional(), metaSchema:z.lazy(() =>jzodElement).optional(), valueSchema:z.lazy(() =>jzodElement).optional()}).strict().optional(), optional:z.boolean().optional()}).strict().optional(), type:z.literal("tuple"), definition:z.array(z.lazy(() =>jzodElement))}).strict();
-export const jzodUnion = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.any().optional(), tag:z.object({value:z.any(), schema:z.object({optional:z.boolean().optional(), metaSchema:z.lazy(() =>jzodElement).optional(), valueSchema:z.lazy(() =>jzodElement).optional()}).strict().optional(), optional:z.boolean().optional()}).strict().optional(), type:z.literal("union"), discriminator:z.union([z.object({discriminatorType:z.literal("string"), value:z.string()}).strict(), z.object({discriminatorType:z.literal("array"), value:z.array(z.string())}).strict()]).optional(), carryOn:z.union([z.lazy(() =>jzodObject), z.lazy(() =>jzodUnion)]).optional(), definition:z.array(z.lazy(() =>jzodElement))}).strict();
+export const jzodUnion = z.object({optional:z.boolean().optional(), nullable:z.boolean().optional(), extra:z.any().optional(), tag:z.object({value:z.any(), schema:z.object({optional:z.boolean().optional(), metaSchema:z.lazy(() =>jzodElement).optional(), valueSchema:z.lazy(() =>jzodElement).optional()}).strict().optional(), optional:z.boolean().optional()}).strict().optional(), type:z.literal("union"), optInDiscriminator:z.boolean().optional(), discriminator:z.union([z.object({discriminatorType:z.literal("string"), value:z.string()}).strict(), z.object({discriminatorType:z.literal("array"), value:z.array(z.string())}).strict()]).optional(), carryOn:z.union([z.lazy(() =>jzodObject), z.lazy(() =>jzodUnion)]).optional(), definition:z.array(z.lazy(() =>jzodElement))}).strict();
 export const a = z.array(z.lazy(() =>jzodArray));
 export const testJzodSchema4 = z.lazy(() =>a);

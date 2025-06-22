@@ -104,7 +104,7 @@ export function jzodToZodTextAndTsTypeText(
       const typeAlias = createTypeAlias(tsNode, actualTypeName);
       const tsTypeString = printNode(typeAlias);
       // console.log("jzodToZodTextAndTsTypeText producing TS type for contextElement", curr[0], tsTypeString);
-      console.log("jzodToZodTextAndTsTypeText producing TS type for contextElement", curr[0]);
+      // console.log("jzodToZodTextAndTsTypeText producing TS type for contextElement", curr[0]);
       return [curr[0], tsTypeString];
     })
   );
