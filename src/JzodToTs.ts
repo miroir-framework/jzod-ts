@@ -193,16 +193,16 @@ export function jzodToTsCode(
   jzodElement: any, // to avoid circulatity on JzodElement
   context: ZodTextAndZodSchemaRecord = {},
   exportPrefix: boolean = true,
-  headerForZodImports: boolean = true,
+  headerForZodImports: boolean | string = true,
   typeAnotationForSchema: string[] = [],
   extendedTsTypesText: string = "",
 ): string {
-  // console.log(
-  //   "################################### jzodToTsCode typeName",
-  //   typeName,
-  //   "jzodElement",
-  //   JSON.stringify(jzodElement, null, 2)
-  // );
+  console.log(
+    "################################### jzodToTsCode typeName",
+    typeName,
+    "jzodElement",
+    JSON.stringify(Object.keys(jzodElement.context), null, 2)
+  );
 
   const schemaName = typeName
     ? typeName.replace(/^(.)(.*)$/, (a, b, c) => b.toLowerCase() + c)
@@ -213,7 +213,12 @@ export function jzodToTsCode(
 
   // console.log("jzodToTsCode typeAnotationForSchema", typeAnotationForSchema);
 
-  const header = headerForZodImports?`import { ZodType, ZodTypeAny, z } from "zod";`:"";
+  const header =
+    typeof headerForZodImports == "string"
+      ? headerForZodImports
+      : headerForZodImports
+      ? `import { ZodType, ZodTypeAny, z } from "zod";`
+      : "";
 
   const tsTypeStringsAndZodText = jzodToZodTextAndTsTypeText(jzodElement, context, actualTypeName);
 
