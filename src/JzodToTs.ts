@@ -79,7 +79,7 @@ export function jzodToZodTextAndZodSchemaForTsGeneration(
     element as any,
     contextFunction,
     contextFunction,
-    true, // typeScriptGeneration
+    {typeScriptGeneration: true}, // typeScriptGeneration
   );
   return elementZodSchemaAndDescription;
 }
@@ -201,7 +201,7 @@ export function jzodToTsCode(
     "################################### jzodToTsCode typeName",
     typeName,
     "jzodElement",
-    JSON.stringify(Object.keys(jzodElement.context), null, 2)
+    jzodElement && jzodElement.context ? JSON.stringify(Object.keys(jzodElement.context), null, 2) : undefined
   );
 
   const schemaName = typeName

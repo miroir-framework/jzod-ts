@@ -1,4 +1,4 @@
-import { describe, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { z, ZodTypeAny } from "zod";
 import { zodSchemaToTsTypeText } from '../src/ZodToTsTypeText';
 
