@@ -1,6 +1,6 @@
 import ts from "typescript";
 import { ZodTypeAny } from "zod";
-import { createTypeAlias, printNode, zodToTs } from "zod-to-ts";
+import { createTypeAlias, GetType, printNode, withGetType, zodToTs } from "zod-to-ts";
 
 import {
   jzodToZodTextAndZodSchema,
@@ -8,6 +8,21 @@ import {
   ZodTextAndZodSchemaRecord,
 } from "@miroir-framework/jzod";
 
+
+// ################################################################################################
+const typeScriptLazyReferenceConverter = (
+  innerReference: ZodTypeAny & GetType,
+  relativeReference: string | undefined
+): ZodTypeAny =>
+  withGetType(innerReference, (ts: any) => {
+    const actualTypeName = relativeReference
+      ? relativeReference.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)
+      : "";
+    return ts.factory.createTypeReferenceNode(
+      ts.factory.createIdentifier(actualTypeName ?? "RELATIVEPATH_NOT_DEFINED"),
+      undefined
+    );
+  });
 
 // ################################################################################################
 export type TsTypeAliases =  {
@@ -79,7 +94,7 @@ export function jzodToZodTextAndZodSchemaForTsGeneration(
     element as any,
     contextFunction,
     contextFunction,
-    {typeScriptGeneration: true}, // typeScriptGeneration
+    {typeScriptLazyConverter: typeScriptLazyReferenceConverter},
   );
   return elementZodSchemaAndDescription;
 }
@@ -198,10 +213,18 @@ export function jzodToTsCode(
   extendedTsTypesText: string = "",
 ): string {
   console.log(
-    "################################### jzodToTsCode typeName",
+    "################################### jzodToTsCodeeeeeeee typeName",
     typeName,
     "jzodElement",
-    jzodElement && jzodElement.context ? JSON.stringify(Object.keys(jzodElement.context), null, 2) : undefined
+    jzodElement && jzodElement.context
+      ? JSON.stringify(
+          Object.entries(jzodElement.context)
+            .map(([key, value]) => [key, !value])
+            .map(([key, value]) => key + ": " + value),
+          null,
+          2,
+        )
+      : undefined,
   );
 
   const schemaName = typeName

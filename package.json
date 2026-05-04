@@ -36,7 +36,6 @@
     "test": "cross-env NODE_ENV=test vitest run --poolOptions.threads.singleThread --passWithNoTests -t"
   },
   "dependencies": {
-    "@miroir-framework/jzod": "0.8.2",
     "zod": "^3.24.2",
     "zod-to-ts": "^1.2.0"
   },
