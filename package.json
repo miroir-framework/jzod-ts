@@ -1,7 +1,7 @@
 {
   "name": "@miroir-framework/jzod-ts",
   "private": false,
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "The Typescript-related functionalities of Jzod.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,7 @@
     "test": "cross-env NODE_ENV=test vitest run --poolOptions.threads.singleThread --passWithNoTests"
   },
   "dependencies": {
-    "@miroir-framework/jzod": "0.8.4",
+    "@miroir-framework/jzod": "0.8.5",
     "zod": "^3.24.2",
     "zod-to-ts": "^1.2.0"
   },

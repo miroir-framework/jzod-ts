@@ -12,16 +12,21 @@ import {
 // ################################################################################################
 const typeScriptLazyReferenceConverter = (
   innerReference: ZodTypeAny & GetType,
-  relativeReference: string | undefined
+  relativeReference: string | undefined,
+  partial?: boolean,
 ): ZodTypeAny =>
   withGetType(innerReference, (ts: any) => {
     const actualTypeName = relativeReference
       ? relativeReference.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)
       : "";
-    return ts.factory.createTypeReferenceNode(
+    const referencedType = ts.factory.createTypeReferenceNode(
       ts.factory.createIdentifier(actualTypeName ?? "RELATIVEPATH_NOT_DEFINED"),
-      undefined
+      undefined,
     );
+    if (partial) {
+      return ts.factory.createTypeReferenceNode(ts.factory.createIdentifier("Partial"), [referencedType]);
+    }
+    return referencedType;
   });
 
 // ################################################################################################
