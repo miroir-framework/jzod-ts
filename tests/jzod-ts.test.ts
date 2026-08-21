@@ -1,8 +1,9 @@
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
+import { describe, expect, it } from "vitest";
 
-import { jzodToTsCode } from "../src/JzodToTs";
 import { jzodBootstrapElementSchema } from "@miroir-framework/jzod";
+import { jzodToTsCode } from "../src/JzodToTs";
 
 const tmpPath = "./tests/tmp";
 const refsPath = "./tests/resources"
