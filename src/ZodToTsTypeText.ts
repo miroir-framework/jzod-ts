@@ -1,6 +1,6 @@
 import { ZodTypeAny } from "zod";
-import { zodToTs, createTypeAlias, printNode } from "zod-to-ts";
-import { TsTypeText } from "./JzodToTs";
+import { createTypeAlias, printNode } from "zod-to-ts";
+import { TsTypeText, zodToTs } from "./JzodToTs";
 
 // ################################################################################################
 export function zodSchemaToTsTypeText(

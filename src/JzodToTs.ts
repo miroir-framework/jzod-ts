@@ -1,6 +1,13 @@
 import ts from "typescript";
 import { ZodTypeAny } from "zod";
-import { createTypeAlias, GetType, printNode, withGetType, zodToTs } from "zod-to-ts";
+import {
+  createAuxiliaryTypeStore,
+  createTypeAlias,
+  printNode,
+  zodToTs as zodToTsNode,
+  type TypeOverrideFunction,
+  type ZodToTsOptions,
+} from "zod-to-ts";
 
 import {
   jzodToZodTextAndZodSchema,
@@ -10,12 +17,18 @@ import {
 
 
 // ################################################################################################
+/**
+ * TypeScript nodes for the lazy schemas of jzod references: a reference prints as the name of the type it
+ * points to. zod-to-ts 2 looks schemas up through `overrideFunction`; the WeakMap lets the schemas go.
+ */
+const lazyReferenceTypes = new WeakMap<object, TypeOverrideFunction>();
+
 const typeScriptLazyReferenceConverter = (
-  innerReference: ZodTypeAny & GetType,
+  innerReference: ZodTypeAny,
   relativeReference: string | undefined,
   partial?: boolean,
-): ZodTypeAny =>
-  withGetType(innerReference, (ts: any) => {
+): ZodTypeAny => {
+  lazyReferenceTypes.set(innerReference, (ts) => {
     const actualTypeName = relativeReference
       ? relativeReference.replace(/^(.)(.*)$/, (a, b, c) => b.toUpperCase() + c)
       : "";
@@ -28,6 +41,76 @@ const typeScriptLazyReferenceConverter = (
     }
     return referencedType;
   });
+  return innerReference;
+};
+
+// ################################################################################################
+// The TypeScript text of objects and records is kept as zod-to-ts 1 printed it:
+// - a property is optional when it accepts `undefined` (so `any` and `unknown` properties are optional),
+// - strict objects have no `[x: string]: never` index signature,
+// - records are `{ [x: string]: T }`.
+const identifierRegExp = /^[$_\p{ID_Start}][$\u200c\u200d\p{ID_Continue}]*$/u;
+
+function objectTypeNode(
+  shape: Record<string, ZodTypeAny>,
+  typescript: typeof ts,
+  options: ZodToTsOptions,
+): ts.TypeNode {
+  const f = typescript.factory;
+  return f.createTypeLiteralNode(
+    Object.entries(shape).map(([key, value]) =>
+      f.createPropertySignature(
+        undefined,
+        identifierRegExp.test(key) ? f.createIdentifier(key) : f.createStringLiteral(key),
+        value.isOptional() ? f.createToken(typescript.SyntaxKind.QuestionToken) : undefined,
+        zodToTsNode(value as any, options).node,
+      ),
+    ),
+  );
+}
+
+function recordTypeNode(valueType: ZodTypeAny, typescript: typeof ts, options: ZodToTsOptions): ts.TypeNode {
+  const f = typescript.factory;
+  return f.createTypeLiteralNode([
+    f.createIndexSignature(
+      undefined,
+      [
+        f.createParameterDeclaration(
+          undefined,
+          undefined,
+          f.createIdentifier("x"),
+          undefined,
+          f.createKeywordTypeNode(typescript.SyntaxKind.StringKeyword),
+        ),
+      ],
+      zodToTsNode(valueType as any, options).node,
+    ),
+  ]);
+}
+
+// ################################################################################################
+/** The TypeScript node of a zod schema, jzod references printed as type names. */
+export function zodToTs(zodSchema: ZodTypeAny, identifier?: string): { node: ts.TypeNode } {
+  return zodToTsNode(zodSchema as any, {
+    auxiliaryTypeStore: createAuxiliaryTypeStore(),
+    overrideFunction: (schema, typescript, options) => {
+      const referenceType = lazyReferenceTypes.get(schema);
+      if (referenceType) {
+        return referenceType(typescript, options);
+      }
+      const def: any = (schema as any)._zod.def;
+      switch (def.type) {
+        case "object":
+          return objectTypeNode(def.shape, typescript, options);
+        case "record":
+          return recordTypeNode(def.valueType, typescript, options);
+        default:
+          return undefined;
+      }
+    },
+    unrepresentable: "any",
+  });
+}
 
 // ################################################################################################
 export type TsTypeAliases =  {
